@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 interface WelcomeModalProps {
   hasSave: boolean;
   onStartNew: () => void;
@@ -5,6 +7,17 @@ interface WelcomeModalProps {
 }
 
 export function WelcomeModal({ hasSave, onStartNew, onResume }: WelcomeModalProps) {
+  // Require a second click to confirm overwriting an existing save.
+  const [confirmNewGame, setConfirmNewGame] = useState(false);
+
+  const handleNewGameClick = () => {
+    if (hasSave && !confirmNewGame) {
+      setConfirmNewGame(true);
+      return;
+    }
+    onStartNew();
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal-box">
@@ -21,8 +34,8 @@ ___  __        ___  __   __   ___  ___     __
           &gt; EARN GOLD. SURVIVE THE WAVES.
         </p>
         <div className="modal-actions">
-          <button className="term-btn" onClick={onStartNew}>
-            [ NEW GAME ]
+          <button className="term-btn" onClick={handleNewGameClick}>
+            {confirmNewGame ? "[ CONFIRM ]" : "[ NEW GAME ]"}
           </button>
           {hasSave && (
             <button className="term-btn" onClick={onResume}>

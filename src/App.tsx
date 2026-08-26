@@ -35,18 +35,21 @@ function App() {
   const [selectedTowerId, setSelectedTowerId] = useState<string | null>(null);
   const [autoStart, setAutoStart] = useState(false);
   const [autoStartRemainingMs, setAutoStartRemainingMs] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleStartNew = useCallback(() => {
     const fresh = createNewGameState();
     setState(fresh);
     clearGameState();
     setScreen("playing");
+    setMenuOpen(false);
   }, []);
 
   const handleResume = useCallback(() => {
     const saved = loadGameState();
     setState(saved ?? createNewGameState());
     setScreen("playing");
+    setMenuOpen(false);
   }, []);
 
   // Autosave whenever state changes while playing.
@@ -165,6 +168,9 @@ function App() {
       <div className="crt-scanlines" />
       <header className="app-header">
         <span>&gt;&gt; TOWERDEF.IO_TERMINAL DEFENSE SYSTEM</span>
+        <button className="term-btn term-btn-small header-menu-btn" onClick={() => setMenuOpen(true)}>
+          [ MENU ]
+        </button>
       </header>
       <main
         className={`app-main${screen === "welcome" ? " app-main-dimmed" : ""}`}
@@ -210,9 +216,9 @@ function App() {
           )}
         </div>
       </main>
-      {screen === "welcome" && (
+      {(screen === "welcome" || menuOpen) && (
         <WelcomeModal
-          hasSave={hasSave}
+          hasSave={hasSave || screen === "playing"}
           onStartNew={handleStartNew}
           onResume={handleResume}
         />
