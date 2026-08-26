@@ -81,6 +81,7 @@ export function GameBoard({
   return (
     <div
       className="board-wrap"
+      onClick={(e) => e.stopPropagation()}
       onDragLeave={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
           setHoveredCell(null);

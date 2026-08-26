@@ -4,7 +4,7 @@ export const INITIAL_GOLD = 250;
 export const INITIAL_LIVES = 20;
 
 /** Delay in milliseconds before autostart kicks off the next wave. */
-export const AUTO_START_DELAY_MS = 3000;
+export const AUTO_START_DELAY_MS = 2200;
 
 export const TOWER_DEFS: TowerDef[] = [
   {
@@ -13,7 +13,7 @@ export const TOWER_DEFS: TowerDef[] = [
     cost: 100,
     range: 2.5,
     damage: 8,
-    fireRate: 1.5,
+    fireRate: 2,
     icon: "^",
     color: "#33ff66",
     splashRadius: 0,
@@ -23,7 +23,7 @@ export const TOWER_DEFS: TowerDef[] = [
     name: "CANNON",
     cost: 200,
     range: 3.0,
-    damage: 18,
+    damage: 20,
     fireRate: 0.9,
     icon: "#",
     color: "#FF8360",
@@ -35,7 +35,7 @@ export const TOWER_DEFS: TowerDef[] = [
     cost: 300,
     range: 3.5,
     damage: 14,
-    fireRate: 2.5,
+    fireRate: 3,
     icon: "*",
     color: "#33e0ff",
     splashRadius: 0,

@@ -57,6 +57,11 @@
 
 .term-btn-autostart {
   overflow: hidden;
+  white-space: nowrap;
+  padding-left: 6px;
+  padding-right: 6px;
+  font-size: 11px;
+  letter-spacing: 0;
 }
 
 .autostart-bar {
@@ -93,15 +98,19 @@
 }
 
 .autostart-toggle input[type="checkbox"]:checked {
-  background: var(--term-green);
   box-shadow: 0 0 6px rgba(51, 255, 102, 0.6);
 }
 
 .autostart-toggle input[type="checkbox"]:checked::after {
-  content: "";
+  content: "\2715";
   position: absolute;
-  inset: 2px;
-  background: #000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--term-green);
 }
 
 .autostart-toggle input[type="checkbox"]:hover {

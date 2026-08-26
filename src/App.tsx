@@ -166,7 +166,10 @@ function App() {
       <header className="app-header">
         <span>&gt;&gt; TOWERDEF.IO_TERMINAL DEFENSE SYSTEM</span>
       </header>
-      <main className={`app-main${screen === "welcome" ? " app-main-dimmed" : ""}`}>
+      <main
+        className={`app-main${screen === "welcome" ? " app-main-dimmed" : ""}`}
+        onClick={() => handleSelectTower(null)}
+      >
         <TowerShop gold={state.gold} onDragStateChange={setDraggingDefId} />
         <GameBoard
           state={state}
@@ -195,13 +198,15 @@ function App() {
             onToggleAutoStart={setAutoStart}
           />
           {selectedTowerId && (
-            <TowerUpgradePanel
-              tower={state.towers.find((t) => t.id === selectedTowerId) ?? null}
-              gold={state.gold}
-              onUpgrade={(stat) => handleUpgradeTower(selectedTowerId, stat)}
-              onSell={() => handleSellTower(selectedTowerId)}
-              onClose={() => handleSelectTower(null)}
-            />
+            <div onClick={(e) => e.stopPropagation()}>
+              <TowerUpgradePanel
+                tower={state.towers.find((t) => t.id === selectedTowerId) ?? null}
+                gold={state.gold}
+                onUpgrade={(stat) => handleUpgradeTower(selectedTowerId, stat)}
+                onSell={() => handleSellTower(selectedTowerId)}
+                onClose={() => handleSelectTower(null)}
+              />
+            </div>
           )}
         </div>
       </main>
