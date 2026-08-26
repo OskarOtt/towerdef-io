@@ -1,6 +1,6 @@
 import type { EnemyKind, TowerDef } from "./types";
 
-export const INITIAL_GOLD = 10000;
+export const INITIAL_GOLD = 250;
 export const INITIAL_LIVES = 20;
 
 export const TOWER_DEFS: TowerDef[] = [
