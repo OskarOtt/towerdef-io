@@ -27,7 +27,9 @@ type Screen = "welcome" | "playing";
 function App() {
   const [screen, setScreen] = useState<Screen>("welcome");
   const [hasSave] = useState<boolean>(() => hasSavedGame());
-  const [state, setState] = useState<GameState>(() => createNewGameState());
+  const [state, setState] = useState<GameState>(
+    () => loadGameState() ?? createNewGameState(),
+  );
   const [speed, setSpeed] = useState(1);
   const [draggingDefId, setDraggingDefId] = useState<string | null>(null);
   const [selectedTowerId, setSelectedTowerId] = useState<string | null>(null);
@@ -132,23 +134,13 @@ function App() {
     setState(createNewGameState());
   }, []);
 
-  if (screen === "welcome") {
-    return (
-      <WelcomeModal
-        hasSave={hasSave}
-        onStartNew={handleStartNew}
-        onResume={handleResume}
-      />
-    );
-  }
-
   return (
     <div className="app-root">
       <div className="crt-scanlines" />
       <header className="app-header">
         <span>&gt;&gt; TOWERDEF.IO_TERMINAL DEFENSE SYSTEM</span>
       </header>
-      <main className="app-main">
+      <main className={`app-main${screen === "welcome" ? " app-main-dimmed" : ""}`}>
         <TowerShop gold={state.gold} onDragStateChange={setDraggingDefId} />
         <GameBoard
           state={state}
@@ -181,6 +173,13 @@ function App() {
           )}
         </div>
       </main>
+      {screen === "welcome" && (
+        <WelcomeModal
+          hasSave={hasSave}
+          onStartNew={handleStartNew}
+          onResume={handleResume}
+        />
+      )}
     </div>
   );
 }
