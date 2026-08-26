@@ -71,7 +71,7 @@ export function Hud({
       )}
       {gameOver && (
         <>
-          <div className="hud-stat hud-gameover">*** CORE BREACHED ***</div>
+          <div className="hud-stat hud-gameover">***CORE BREACHED***</div>
           <button className="term-btn" onClick={onNewGame}>
             [ RESTART ]
           </button>
