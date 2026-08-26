@@ -1,0 +1,416 @@
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  color: var(--term-green);
+}
+
+.modal-box {
+  border: 2px solid var(--term-green);
+  padding: 24px 32px;
+  max-width: 560px;
+  box-shadow: 0 0 24px rgba(51, 255, 102, 0.35);
+  text-align: left;
+}
+
+.modal-ascii {
+  color: var(--term-green);
+  font-size: 10px;
+  line-height: 1.1;
+  margin: 0 0 12px;
+  text-shadow: 0 0 6px rgba(51, 255, 102, 0.6);
+  white-space: pre;
+}
+
+.modal-text {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 20px;
+  color: var(--term-green-dim);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.term-btn {
+  font-family: var(--mono);
+  background: transparent;
+  border: 1px solid var(--term-green);
+  color: var(--term-green);
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.term-btn:hover:not(:disabled) {
+  background: var(--term-green);
+  color: #000;
+}
+
+.term-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.speed-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.speed-label {
+  font-size: 11px;
+  color: var(--term-green-dim);
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.term-btn-small {
+  padding: 4px 10px;
+  font-size: 12px;
+  flex: 1;
+}
+
+.term-btn-active {
+  background: var(--term-green);
+  color: #000;
+}
+
+/* ---------- App shell ---------- */
+.app-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.crt-scanlines {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(51, 255, 102, 0.03) 0px,
+    rgba(51, 255, 102, 0.03) 1px,
+    transparent 2px,
+    transparent 3px
+  );
+  z-index: 5;
+}
+
+.app-header {
+  border-bottom: 1px solid var(--term-green-dim);
+  padding: 10px 16px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--term-green);
+  text-shadow: 0 0 6px rgba(51, 255, 102, 0.5);
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* ---------- Tower shop ---------- */
+.tower-shop {
+  border: 1px solid var(--term-green-dim);
+  padding: 12px;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel-title {
+  font-size: 13px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--term-green-dim);
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+}
+
+.tower-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px dashed var(--term-green-dim);
+  padding: 8px;
+  cursor: grab;
+}
+
+.tower-card-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.tower-card-icon {
+  font-size: 22px;
+  width: 28px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.tower-card-info {
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.tower-card-name {
+  font-weight: bold;
+  color: var(--term-green);
+}
+
+.tower-card-stats {
+  color: var(--term-green-dim);
+}
+
+.tower-card-cost {
+  color: var(--term-amber);
+}
+
+.shop-hint {
+  font-size: 10px;
+  color: var(--term-green-dim);
+  margin: 4px 0 0;
+}
+
+/* ---------- Board ---------- */
+.board-wrap {
+  position: relative;
+  width: 720px;
+  max-width: 100%;
+  aspect-ratio: 12 / 9;
+  border: 1px solid var(--term-green-dim);
+}
+
+.board-grid {
+  display: grid;
+  width: 100%;
+  height: 100%;
+}
+
+.cell {
+  border: 1px solid rgba(51, 255, 102, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.cell-path {
+  background: rgba(255, 176, 0, 0.08);
+  border-color: rgba(255, 176, 0, 0.25);
+}
+
+.cell-buildable.cell-droppable {
+  background: rgba(51, 255, 102, 0.03);
+}
+
+.cell-glow::before {
+  content: "";
+  position: absolute;
+  inset: 20%;
+  border-radius: 2px;
+  background: var(--term-green);
+  animation: cell-glow-pulse 3.1s ease-out infinite;
+}
+
+@keyframes cell-glow-pulse {
+  0% {
+    opacity: 0;
+    box-shadow: 0 0 0 0 transparent;
+  }
+  60% {
+    opacity: 0.2;
+    box-shadow: 0 0 3px 1px var(--term-green);
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.tower-icon {
+  font-size: 22px;
+  font-weight: bold;
+  text-shadow: 0 0 6px currentColor;
+}
+
+.board-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tower-range-circle {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed var(--term-green);
+  background: rgba(51, 255, 102, 0.06);
+  box-shadow: 0 0 8px rgba(51, 255, 102, 0.3);
+}
+
+.tower-range-preview {
+  border-color: rgba(51, 255, 102, 0.35);
+  background: rgba(51, 255, 102, 0.02);
+  box-shadow: none;
+}
+
+.enemy {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.enemy-glyph {
+  color: var(--term-red);
+  font-weight: bold;
+  font-size: 16px;
+  text-shadow: 0 0 6px rgba(255, 68, 68, 0.8);
+}
+
+.enemy-y {
+  color: var(--term-amber);
+  text-shadow: 0 0 6px rgba(255, 176, 0, 0.8);
+}
+
+.enemy-z {
+  color: var(--term-cyan);
+  text-shadow: 0 0 6px rgba(51, 224, 255, 0.8);
+}
+
+.enemy-hp-bar {
+  width: 24px;
+  height: 3px;
+  background: rgba(255, 68, 68, 0.2);
+}
+
+.enemy-hp-fill {
+  height: 100%;
+  background: var(--term-red);
+}
+
+.projectile {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--term-amber);
+  box-shadow: 0 0 5px 1px var(--term-amber);
+  transform: translate(-50%, -50%);
+}
+
+/* ---------- HUD ---------- */
+.hud {
+  border: 1px solid var(--term-green-dim);
+  padding: 12px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.hud-stat {
+  letter-spacing: 0.5px;
+}
+
+.hud-gameover {
+  color: var(--term-red);
+  font-weight: bold;
+  text-shadow: 0 0 6px rgba(255, 68, 68, 0.7);
+}
+
+/* ---------- HUD column / tower upgrade panel ---------- */
+.hud-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tower-upgrade-panel {
+  border: 1px solid var(--term-green-dim);
+  padding: 12px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.tower-upgrade-panel .panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.upgrade-panel-close {
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+.tower-upgrade-stats {
+  color: var(--term-green-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.upgrade-btn {
+  text-align: left;
+  font-size: 11px;
+  padding: 6px 10px;
+}
+
+.upgrade-sell-btn {
+  text-align: left;
+  font-size: 11px;
+  padding: 6px 10px;
+  border-color: var(--term-amber);
+  color: var(--term-amber);
+}
+
+.upgrade-sell-btn:hover:not(:disabled) {
+  background: var(--term-amber);
+  color: #000;
+}
+
+/* ---------- Tower selection / upgrade badge on board ---------- */
+.cell-tower {
+  cursor: pointer;
+}
+
+.cell-selected {
+  background: rgba(51, 255, 102, 0.12);
+  box-shadow: inset 0 0 0 1px var(--term-green);
+}
+
+.tower-upgrade-badge {
+  position: absolute;
+  left: 2px;
+  bottom: 1px;
+  font-size: 9px;
+  font-weight: bold;
+  line-height: 1;
+  color: var(--term-amber);
+  text-shadow: 0 0 4px rgba(255, 176, 0, 0.8);
+}

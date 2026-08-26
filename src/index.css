@@ -1,0 +1,32 @@
+:root {
+  --term-bg: #060a06;
+  --term-green: #33ff66;
+  --term-green-dim: #1a8a38;
+  --term-amber: #ffb000;
+  --term-cyan: #33e0ff;
+  --term-red: #ff4444;
+  --mono: "Courier New", ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  color-scheme: dark;
+  color: var(--term-green);
+  background: var(--term-bg);
+  font-family: var(--mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--term-bg);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button {
+  font-family: var(--mono);
+}
