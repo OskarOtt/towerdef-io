@@ -13,7 +13,7 @@ import {
   clearGameState,
 } from "./game/storage";
 import { stepGame, startNextWave, useGameLoop } from "./game/useGameLoop";
-import { towerDefById } from "./game/constants";
+import { towerDefById, AUTO_START_DELAY_MS } from "./game/constants";
 import { TowerUpgradePanel } from "./components/TowerUpgradePanel";
 import {
   emptyUpgrades,
@@ -33,6 +33,8 @@ function App() {
   const [speed, setSpeed] = useState(1);
   const [draggingDefId, setDraggingDefId] = useState<string | null>(null);
   const [selectedTowerId, setSelectedTowerId] = useState<string | null>(null);
+  const [autoStart, setAutoStart] = useState(false);
+  const [autoStartRemainingMs, setAutoStartRemainingMs] = useState<number | null>(null);
 
   const handleStartNew = useCallback(() => {
     const fresh = createNewGameState();
@@ -62,6 +64,30 @@ function App() {
   const handleStartWave = useCallback(() => {
     setState((prev) => startNextWave(prev));
   }, []);
+
+  // Autostart: while enabled and no wave is running, count down and then
+  // kick off the next wave automatically. Cancels/resets whenever a wave
+  // starts, autostart is turned off, or the game ends.
+  useEffect(() => {
+    if (!autoStart || screen !== "playing" || state.gameOver || state.waveInProgress) {
+      setAutoStartRemainingMs(null);
+      return;
+    }
+    const startTime = performance.now();
+    setAutoStartRemainingMs(AUTO_START_DELAY_MS);
+    let raf = 0;
+    const tick = () => {
+      const remaining = Math.max(0, AUTO_START_DELAY_MS - (performance.now() - startTime));
+      setAutoStartRemainingMs(remaining);
+      if (remaining <= 0) {
+        handleStartWave();
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [autoStart, screen, state.gameOver, state.waveInProgress, handleStartWave]);
 
   const handleDropTower = useCallback((row: number, col: number, defId: string) => {
     setState((prev) => {
@@ -155,12 +181,18 @@ function App() {
             gold={state.gold}
             lives={state.lives}
             wave={state.wave}
+            killCount={state.killCount}
             waveInProgress={state.waveInProgress}
             gameOver={state.gameOver}
             speed={speed}
+            autoStart={autoStart}
+            autoStartFraction={
+              autoStartRemainingMs !== null ? autoStartRemainingMs / AUTO_START_DELAY_MS : null
+            }
             onStartWave={handleStartWave}
             onNewGame={handleNewGameFromGameOver}
             onSetSpeed={setSpeed}
+            onToggleAutoStart={setAutoStart}
           />
           {selectedTowerId && (
             <TowerUpgradePanel

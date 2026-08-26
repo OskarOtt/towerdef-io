@@ -3,6 +3,9 @@ import type { EnemyKind, TowerDef } from "./types";
 export const INITIAL_GOLD = 250;
 export const INITIAL_LIVES = 20;
 
+/** Delay in milliseconds before autostart kicks off the next wave. */
+export const AUTO_START_DELAY_MS = 3000;
+
 export const TOWER_DEFS: TowerDef[] = [
   {
     id: "blaster",
@@ -20,8 +23,8 @@ export const TOWER_DEFS: TowerDef[] = [
     name: "CANNON",
     cost: 200,
     range: 3.0,
-    damage: 22,
-    fireRate: 0.8,
+    damage: 18,
+    fireRate: 0.9,
     icon: "#",
     color: "#FF8360",
     splashRadius: 1,
@@ -54,7 +57,7 @@ export const TOWER_DEFS: TowerDef[] = [
     cost: 500,
     range: 4.0,
     damage: 10,
-    fireRate: 5,
+    fireRate: 6,
     icon: "@",
     color: "#FFD700",
     splashRadius: 2,

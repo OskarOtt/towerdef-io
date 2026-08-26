@@ -15,6 +15,7 @@ export function createNewGameState(): GameState {
     enemiesToSpawn: 0,
     spawnTimer: 0,
     gameOver: false,
+    killCount: 0,
   };
 }
 
@@ -44,6 +45,10 @@ export function loadGameState(): GameState | null {
         totalSpent: typeof anyTower.totalSpent === "number" ? anyTower.totalSpent : def?.cost ?? 0,
       } as GameState["towers"][number];
     });
+    // Migrate saves from before kill counter was tracked.
+    if (typeof parsed.killCount !== "number") {
+      parsed.killCount = 0;
+    }
     return parsed;
   } catch {
     return null;

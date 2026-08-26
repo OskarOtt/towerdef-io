@@ -79,4 +79,6 @@ export interface GameState {
   enemiesToSpawn: number;
   spawnTimer: number;
   gameOver: boolean;
+  /** Total enemies killed this game, shown in the HUD. */
+  killCount: number;
 }

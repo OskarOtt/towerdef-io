@@ -152,9 +152,11 @@ export function stepGame(state: GameState, dt: number): GameState {
 
   // Remove dead enemies, grant gold
   const alive: Enemy[] = [];
+  let killCount = state.killCount;
   for (const enemy of enemies) {
     if (enemy.hp <= 0) {
       gold += enemy.reward;
+      killCount += 1;
     } else {
       alive.push(enemy);
     }
@@ -178,6 +180,7 @@ export function stepGame(state: GameState, dt: number): GameState {
     enemiesToSpawn,
     waveInProgress,
     gameOver,
+    killCount,
   };
 }
 

@@ -51,6 +51,61 @@
   font-size: 14px;
   letter-spacing: 0.5px;
   transition: background 0.15s, color 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.term-btn-autostart {
+  overflow: hidden;
+}
+
+.autostart-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--term-amber);
+  box-shadow: 0 0 6px var(--term-amber);
+  pointer-events: none;
+}
+
+.autostart-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--term-green-dim);
+  cursor: pointer;
+}
+
+.autostart-toggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  border: 1px solid var(--term-green);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.autostart-toggle input[type="checkbox"]:checked {
+  background: var(--term-green);
+  box-shadow: 0 0 6px rgba(51, 255, 102, 0.6);
+}
+
+.autostart-toggle input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: #000;
+}
+
+.autostart-toggle input[type="checkbox"]:hover {
+  box-shadow: 0 0 4px rgba(51, 255, 102, 0.4);
 }
 
 .term-btn:hover:not(:disabled) {
