@@ -49,7 +49,10 @@ export function TowerShop({ gold, onDragStateChange }: TowerShopProps) {
             <div className="tower-card-info">
               <div className="tower-card-name">{def.name}</div>
               <div className="tower-card-stats">
-                RNG {def.range} DMG {def.damage} ROF {def.fireRate}/s
+                DMG-{def.damage} ROF-{def.fireRate}/s
+              </div>
+              <div className="tower-card-stats">
+                RANGE-{def.range} {def.splashRadius && (def.splashRadius>0) ? `SPLASH-${def.splashRadius}` : ""}
               </div>
               <div className="tower-card-cost">${def.cost}</div>
             </div>
