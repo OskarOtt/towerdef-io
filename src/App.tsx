@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import "./App.css";
+import { AchievementsModal } from "./components/AchievementsModal";
+import { AchievementToast } from "./components/AchievementToast";
 import { WelcomeModal } from "./components/WelcomeModal";
 import { GameBoard } from "./components/GameBoard";
 import { TowerShop } from "./components/TowerShop";
@@ -21,6 +23,15 @@ import {
   sellValue,
   type UpgradeStat,
 } from "./game/upgrades";
+import {
+  newlyUnlockedAchievements,
+  type AchievementDefinition,
+  type AchievementId,
+} from "./game/achievements";
+import {
+  loadEarnedAchievements,
+  saveEarnedAchievements,
+} from "./game/achievementStorage";
 
 type Screen = "welcome" | "playing";
 
@@ -36,6 +47,12 @@ function App() {
   const [autoStart, setAutoStart] = useState(false);
   const [autoStartRemainingMs, setAutoStartRemainingMs] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [achievementsOpen, setAchievementsOpen] = useState(false);
+  const [earnedAchievementIds, setEarnedAchievementIds] = useState<AchievementId[]>(
+    () => loadEarnedAchievements(),
+  );
+  const [achievementQueue, setAchievementQueue] = useState<AchievementDefinition[]>([]);
+  const [achievementTimerFraction, setAchievementTimerFraction] = useState<number | null>(null);
 
   const handleStartNew = useCallback(() => {
     const fresh = createNewGameState();
@@ -58,6 +75,44 @@ function App() {
       saveGameState(state);
     }
   }, [state, screen]);
+
+  useEffect(() => {
+    saveEarnedAchievements(earnedAchievementIds);
+  }, [earnedAchievementIds]);
+
+  useEffect(() => {
+    if (screen !== "playing") return;
+    const unlocked = newlyUnlockedAchievements(state, earnedAchievementIds);
+    if (unlocked.length === 0) return;
+    setEarnedAchievementIds((previous) => [
+      ...previous,
+      ...unlocked.map((achievement) => achievement.id),
+    ]);
+    setAchievementQueue((previous) => [...previous, ...unlocked]);
+  }, [state, screen, earnedAchievementIds]);
+
+  const activeAchievement = achievementQueue[0] ?? null;
+
+  useEffect(() => {
+    if (!activeAchievement) {
+      setAchievementTimerFraction(null);
+      return;
+    }
+    const durationMs = 5000;
+    const startTime = performance.now();
+    let raf = 0;
+    const tick = () => {
+      const remaining = Math.max(0, durationMs - (performance.now() - startTime));
+      setAchievementTimerFraction(remaining / durationMs);
+      if (remaining <= 0) {
+        setAchievementQueue((previous) => previous.slice(1));
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(raf);
+  }, [activeAchievement]);
 
   const running = screen === "playing" && !state.gameOver;
   useGameLoop(running, (dt) => {
@@ -168,23 +223,45 @@ function App() {
       <div className="crt-scanlines" />
       <header className="app-header">
         <span>&gt;&gt; TOWERDEF.IO_TERMINAL DEFENSE SYSTEM</span>
-        <button className="term-btn term-btn-small header-menu-btn" onClick={() => setMenuOpen(true)}>
-          [ MENU ]
-        </button>
+        <div className="header-actions">
+          <button
+            className="term-btn term-btn-small header-achievements-btn"
+            onClick={() => {
+              setMenuOpen(false);
+              setAchievementsOpen(true);
+            }}
+          >
+            [ ACHIEVEMENTS ]
+          </button>
+          <button className="term-btn term-btn-small" onClick={() => setMenuOpen(true)}>
+            [ MENU ]
+          </button>
+        </div>
       </header>
       <main
         className={`app-main${screen === "welcome" ? " app-main-dimmed" : ""}`}
         onClick={() => handleSelectTower(null)}
       >
         <TowerShop gold={state.gold} onDragStateChange={setDraggingDefId} />
-        <GameBoard
-          state={state}
-          onDropTower={handleDropTower}
-          draggingTower={draggingDefId !== null}
-          draggingDefId={draggingDefId}
-          selectedTowerId={selectedTowerId}
-          onSelectTower={handleSelectTower}
-        />
+        <div className="board-column">
+          <GameBoard
+            state={state}
+            onDropTower={handleDropTower}
+            draggingTower={draggingDefId !== null}
+            draggingDefId={draggingDefId}
+            selectedTowerId={selectedTowerId}
+            onSelectTower={handleSelectTower}
+          />
+          {activeAchievement && achievementTimerFraction !== null && (
+            <AchievementToast
+              achievement={activeAchievement}
+              remainingFraction={achievementTimerFraction}
+              onDismiss={() =>
+                setAchievementQueue((previous) => previous.slice(1))
+              }
+            />
+          )}
+        </div>
         <div className="hud-column">
           <Hud
             gold={state.gold}
@@ -221,6 +298,12 @@ function App() {
           hasSave={hasSave || screen === "playing"}
           onStartNew={handleStartNew}
           onResume={handleResume}
+        />
+      )}
+      {achievementsOpen && (
+        <AchievementsModal
+          earnedIds={earnedAchievementIds}
+          onClose={() => setAchievementsOpen(false)}
         />
       )}
     </div>
