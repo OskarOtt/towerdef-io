@@ -32,6 +32,8 @@ ___  __        ___  __   __   ___  ___     __
           &gt; DEPLOY TOWERS ALONG THE PATH. DEFEND THE CORE.
           <br />
           &gt; EARN GOLD. SURVIVE THE WAVES.
+          <br />
+          &gt; FREE TO PLAY. NO DOWNLOAD REQUIRED.
         </p>
         <div className="modal-actions">
           <button className="term-btn" onClick={handleNewGameClick}>

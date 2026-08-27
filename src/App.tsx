@@ -222,7 +222,7 @@ function App() {
     <div className="app-root">
       <div className="crt-scanlines" />
       <header className="app-header">
-        <span>&gt;&gt; TOWERDEF.IO_TERMINAL DEFENSE SYSTEM</span>
+        <h1>&gt;&gt; TOWERDEF.IO_TERMINAL DEFENSE SYSTEM</h1>
         <div className="header-actions">
           <button
             className="term-btn term-btn-small header-achievements-btn"

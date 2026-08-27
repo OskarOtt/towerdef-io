@@ -29,3 +29,9 @@ npm run dev
 ## Deployment
 
 Pushes to `main` automatically build and publish `dist/` to GitHub Pages via `.github/workflows/deploy.yml`.
+
+### Custom domain and SEO
+
+The production URL is `https://towerdef.io/`. The build publishes a `CNAME`, `robots.txt`, and `sitemap.xml` for that domain. Before deploying it, configure `towerdef.io` as the repository's GitHub Pages custom domain and point its DNS records to GitHub Pages.
+
+To add the site to Google Search Console, create a URL-prefix property for `https://towerdef.io/`, add the verification meta tag Google provides to `index.html`, deploy it, and submit `https://towerdef.io/sitemap.xml`.
