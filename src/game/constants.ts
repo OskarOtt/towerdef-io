@@ -70,12 +70,12 @@ export function towerDefById(id: string): TowerDef | undefined {
 
 /** Enemy HP/count scale with wave number to keep later waves harder. */
 export function enemiesForWave(wave: number): number {
-  return 5 + Math.floor(wave * 1.8);
+  return 6 + Math.floor(wave * 1.8);
 }
 
 /** Lowered from 20 base / 12 per wave to make early waves less punishing. */
 export function enemyHpForWave(wave: number): number {
-  return 14 + wave * 8;
+  return 14 + wave * 9;
 }
 
 export function enemySpeedForWave(wave: number): number {
@@ -87,11 +87,19 @@ const ENEMY_KIND_STATS: Record<EnemyKind, { hp: number; speed: number; reward: n
   x: { hp: 1, speed: 1, reward: 1 },
   y: { hp: 0.6, speed: 1.35, reward: 0.8 },
   z: { hp: 2, speed: 0.65, reward: 1.6 },
+  boss: { hp: 18, speed: 0.40, reward: 12 },
 };
 
 /** Waves before which y/z kinds cannot spawn yet. */
 const Y_UNLOCK_WAVE = 9;
 const Z_UNLOCK_WAVE = 19;
+
+/** A boss (huge hp, slow, "Q" glyph) spawns once every this many waves. */
+export const BOSS_WAVE_INTERVAL = 50;
+
+export function isBossWave(wave: number): boolean {
+  return wave > 0 && wave % BOSS_WAVE_INTERVAL === 0;
+}
 
 /** Weighted random enemy kind: x common, y and z less so, unlocked at later waves. */
 export function randomEnemyKind(wave: number): EnemyKind {

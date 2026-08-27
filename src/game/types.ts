@@ -40,8 +40,8 @@ export interface TowerInstance {
   cooldown: number; // seconds until next shot is allowed
 }
 
-/** x = balanced baseline, y = weaker/faster runner, z = tanky/slower. */
-export type EnemyKind = "x" | "y" | "z";
+/** x = balanced baseline, y = weaker/faster runner, z = tanky/slower, boss = rare massive-hp/slow enemy every BOSS_WAVE_INTERVAL waves. */
+export type EnemyKind = "x" | "y" | "z" | "boss";
 
 export interface Enemy {
   id: string;

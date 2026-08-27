@@ -520,6 +520,12 @@
   text-shadow: 0 0 6px rgba(51, 224, 255, 0.8);
 }
 
+.enemy-boss {
+  color: var(--term-red);
+  font-size: 26px;
+  text-shadow: 0 0 10px rgba(255, 68, 68, 1);
+}
+
 .enemy-hp-bar {
   width: 24px;
   height: 3px;

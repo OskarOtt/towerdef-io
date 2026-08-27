@@ -148,7 +148,9 @@ export function GameBoard({
               className="enemy"
               style={{ left: `${left}%`, top: `${top}%` }}
             >
-              <div className={`enemy-glyph enemy-${enemy.kind}`}>{enemy.kind}</div>
+              <div className={`enemy-glyph enemy-${enemy.kind}`}>
+                {enemy.kind === "boss" ? "Q" : enemy.kind}
+              </div>
               <div className="enemy-hp-bar">
                 <div className="enemy-hp-fill" style={{ width: `${hpPct}%` }} />
               </div>
