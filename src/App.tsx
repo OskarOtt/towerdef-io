@@ -318,6 +318,13 @@ function App() {
           onClose={() => setAchievementsOpen(false)}
         />
       )}
+      <footer className="app-footer">
+        [ Made by{" "}
+        <a href="https://www.oskott.com/" target="_blank" rel="noopener noreferrer">
+          oskott
+        </a>{" "}
+        ]
+      </footer>
     </div>
   );
 }

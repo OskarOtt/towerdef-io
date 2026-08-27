@@ -692,3 +692,24 @@
   color: var(--term-amber);
   text-shadow: 0 0 4px rgba(255, 176, 0, 0.8);
 }
+
+/* ---------- Footer ---------- */
+.app-footer {
+  position: fixed;
+  right: 10px;
+  bottom: 6px;
+  padding: 4px 6px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--term-green-dim);
+  z-index: 6;
+}
+
+.app-footer a {
+  color: var(--term-green);
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
+}
