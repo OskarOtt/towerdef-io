@@ -75,7 +75,7 @@ export function enemiesForWave(wave: number): number {
 
 /** Lowered from 20 base / 12 per wave to make early waves less punishing. */
 export function enemyHpForWave(wave: number): number {
-  return 14 + wave * 9;
+  return 14 + wave * 8.3;
 }
 
 export function enemySpeedForWave(wave: number): number {
@@ -87,7 +87,7 @@ const ENEMY_KIND_STATS: Record<EnemyKind, { hp: number; speed: number; reward: n
   x: { hp: 1, speed: 1, reward: 1 },
   y: { hp: 0.6, speed: 1.35, reward: 0.8 },
   z: { hp: 2, speed: 0.65, reward: 1.6 },
-  boss: { hp: 18, speed: 0.40, reward: 12 },
+  boss: { hp: 13, speed: 0.40, reward: 12 },
 };
 
 /** Waves before which y/z kinds cannot spawn yet. */
