@@ -1,6 +1,6 @@
 import type { EnemyKind, TowerDef } from "./types";
 
-export const INITIAL_GOLD = 10000;
+export const INITIAL_GOLD = 250;
 export const INITIAL_LIVES = 20;
 
 /** Delay in milliseconds before autostart kicks off the next wave. */
