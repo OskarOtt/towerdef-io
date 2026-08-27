@@ -54,7 +54,7 @@ export const TOWER_DEFS: TowerDef[] = [
   {
     id: "god",
     name: "GOD",
-    cost: 500,
+    cost: 1000,
     range: 4.0,
     damage: 10,
     fireRate: 6,
