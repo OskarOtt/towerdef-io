@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { GameState } from "../game/types";
-import { GRID_ROWS, GRID_COLS, isPathCell, positionAtProgress } from "../game/path";
+import { GRID_ROWS, GRID_COLS, PATH, isPathCell, positionAtProgress } from "../game/path";
 import { Cell } from "./Cell";
 import { towerDefById } from "../game/constants";
 import { effectiveStats } from "../game/upgrades";
@@ -98,6 +98,31 @@ export function GameBoard({
         {cells}
       </div>
       <div className="board-overlay">
+        {!state.waveInProgress && (
+        <div
+          className="path-marker path-marker-entry"
+          style={
+            {
+              "--path-marker-start": `${((PATH[0].col + 0.3) / GRID_COLS) * 100}%`,
+              "--path-marker-end": `${((PATH[0].col + 0.7) / GRID_COLS) * 100}%`,
+              top: `${((PATH[0].row + 0.5) / GRID_ROWS) * 100}%`,
+            } as React.CSSProperties
+          }
+          title="Enemy entry"
+        >
+          ▶
+        </div>
+        )}
+        <div
+          className="path-marker path-marker-exit"
+          style={{
+            left: `${((PATH[PATH.length - 1].col + 0.5) / GRID_COLS) * 100}%`,
+            top: `${((PATH[PATH.length - 1].row + 0.5) / GRID_ROWS) * 100}%`,
+          }}
+          title="Base"
+        >
+          ■
+        </div>
         {selectedTower && (
           <div
             className="tower-range-circle"
