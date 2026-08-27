@@ -10,6 +10,7 @@ import {
   enemySpeedForKind,
   enemyRewardForKind,
   randomEnemyKind,
+  isBossWave,
   SPAWN_INTERVAL,
 } from "./constants";
 import { effectiveStats } from "./upgrades";
@@ -22,8 +23,12 @@ function genId(prefix: string): string {
   return `${prefix}-${nextId++}`;
 }
 
-function spawnEnemy(wave: number): Enemy {
-  const kind = randomEnemyKind(wave);
+/**
+ * `isFirstOfWave` lets a boss wave spawn its single "Q" boss as the first
+ * enemy of the wave, without needing extra state to track "boss already spawned".
+ */
+function spawnEnemy(wave: number, isFirstOfWave: boolean): Enemy {
+  const kind = isFirstOfWave && isBossWave(wave) ? "boss" : randomEnemyKind(wave);
   const baseHp = enemyHpForWave(wave);
   const baseSpeed = enemySpeedForWave(wave);
   const hp = enemyHpForKind(baseHp, kind);
@@ -97,7 +102,8 @@ export function stepGame(state: GameState, dt: number): GameState {
   if (waveInProgress && enemiesToSpawn > 0) {
     spawnTimer -= dt;
     if (spawnTimer <= 0) {
-      enemies.push(spawnEnemy(state.wave));
+      const isFirstOfWave = enemiesToSpawn === enemiesForWave(state.wave);
+      enemies.push(spawnEnemy(state.wave, isFirstOfWave));
       enemiesToSpawn -= 1;
       spawnTimer = SPAWN_INTERVAL;
     }

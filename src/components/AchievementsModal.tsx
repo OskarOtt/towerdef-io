@@ -9,8 +9,13 @@ export function AchievementsModal({ earnedIds, onClose }: AchievementsModalProps
   const earned = new Set(earnedIds);
 
   return (
-    <div className="modal-overlay">
-      <section className="modal-box achievements-modal" aria-modal="true" role="dialog">
+    <div className="modal-overlay" onClick={onClose}>
+      <section
+        className="modal-box achievements-modal"
+        aria-modal="true"
+        role="dialog"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="achievements-modal-heading">
           <div>
             <div className="panel-title">ACHIEVEMENT LOG</div>
@@ -18,7 +23,7 @@ export function AchievementsModal({ earnedIds, onClose }: AchievementsModalProps
               UNLOCKED: {earnedIds.length}/{ACHIEVEMENTS.length}
             </div>
           </div>
-          <button className="term-btn term-btn-small" onClick={onClose}>
+          <button className="term-btn term-btn-small achievements-modal-close" onClick={onClose}>
             [ CLOSE ]
           </button>
         </div>

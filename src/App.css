@@ -376,6 +376,12 @@
   gap: 16px;
 }
 
+.achievements-modal-close {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
 .achievements-count {
   color: var(--term-green-dim);
   font-size: 11px;
@@ -493,6 +499,44 @@
   box-shadow: none;
 }
 
+.path-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  z-index: 1;
+}
+
+.path-marker-entry {
+  color: var(--term-green);
+  text-shadow: 0 0 4px rgba(51, 255, 102, 0.5);
+  left: var(--path-marker-start);
+  animation: path-marker-drift 2.4s linear infinite;
+}
+
+@keyframes path-marker-drift {
+  0% {
+    left: var(--path-marker-start);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.6;
+  }
+  85% {
+    opacity: 0.6;
+  }
+  100% {
+    left: var(--path-marker-end);
+    opacity: 0;
+  }
+}
+
+.path-marker-exit {
+  color: var(--term-amber);
+  text-shadow: 0 0 6px rgba(255, 176, 0, 0.8);
+}
+
 .enemy {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -517,6 +561,12 @@
 .enemy-z {
   color: var(--term-cyan);
   text-shadow: 0 0 6px rgba(51, 224, 255, 0.8);
+}
+
+.enemy-boss {
+  color: var(--term-red);
+  font-size: 26px;
+  text-shadow: 0 0 10px rgba(255, 68, 68, 1);
 }
 
 .enemy-hp-bar {
@@ -585,8 +635,9 @@
 }
 
 .upgrade-panel-close {
-  padding: 2px 8px;
-  font-size: 11px;
+  padding: 1px 7px;
+  font-size: 10px;
+  flex: 0 0 auto;
 }
 
 .tower-upgrade-stats {

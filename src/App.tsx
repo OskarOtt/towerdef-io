@@ -147,6 +147,18 @@ function App() {
     return () => cancelAnimationFrame(raf);
   }, [autoStart, screen, state.gameOver, state.waveInProgress, handleStartWave]);
 
+  // Auto-disable autoStart when the tab is hidden (backgrounded/minimized),
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setAutoStart((prev) => (prev ? false : prev));
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
+
   const handleDropTower = useCallback((row: number, col: number, defId: string) => {
     setState((prev) => {
       const def = towerDefById(defId);
