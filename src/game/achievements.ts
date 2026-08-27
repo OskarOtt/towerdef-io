@@ -18,6 +18,9 @@ export const ACHIEVEMENT_IDS = [
   "giga-upgrade",
   "god-upgrade",
   "specialist",
+  "money1",
+  "money2",
+  "money3",
 ] as const;
 
 export type AchievementId = (typeof ACHIEVEMENT_IDS)[number];
@@ -65,6 +68,18 @@ export const ACHIEVEMENTS: readonly AchievementDefinition[] = [
     name: "HUNTER OMEGA",
     description: "Destroy 10 000 hostiles in one game.",
     isUnlocked: (state) => state.killCount >= 10000,
+  },
+  {
+    id: "hunter-100000",
+    name: "HUNTER ULTIMA",
+    description: "Destroy 100 000 hostiles in one game.",
+    isUnlocked: (state) => state.killCount >= 100000,
+  },
+  {
+    id: "hunter-1000000",
+    name: "GOD KILLER",
+    description: "Destroy 1 000 000 hostiles in one game.",
+    isUnlocked: (state) => state.killCount >= 1000000,
   },
   {
     id: "wave-10",
@@ -140,6 +155,27 @@ export const ACHIEVEMENTS: readonly AchievementDefinition[] = [
       state.towers.some((tower) =>
         Object.values(tower.upgrades).some((level) => level >= 50),
       ),
+  },
+  {
+    id: "money1",
+    name: "The saver",
+    description: "Have a 5000 gold in the bank.",
+    isUnlocked: (state) =>
+        state.gold >= 5000,
+  },
+  {
+    id: "money2",
+    name: "The loan shark",
+    description: "Have a 20000 gold in the bank.",
+    isUnlocked: (state) =>
+        state.gold >= 20000,
+  },
+  {
+    id: "money3",
+    name: "The tycoon",
+    description: "Have a 100 000 gold in the bank.",
+    isUnlocked: (state) =>
+        state.gold >= 100000,
   },
 ];
 
