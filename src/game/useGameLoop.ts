@@ -57,6 +57,8 @@ function tickTower(
 ): { hitEnemyId: string | null; damage: number; splashRadius: number } {
   const def = towerDefById(tower.defId);
   if (!def) return { hitEnemyId: null, damage: 0, splashRadius: 0 };
+  // Utility towers (e.g. money printer) never target/shoot enemies.
+  if (def.group === "utility") return { hitEnemyId: null, damage: 0, splashRadius: 0 };
   const stats = effectiveStats(def, tower.upgrades);
 
   tower.cooldown = Math.max(0, tower.cooldown - dt);
@@ -97,6 +99,16 @@ export function stepGame(state: GameState, dt: number): GameState {
   let spawnTimer = state.spawnTimer;
   let enemiesToSpawn = state.enemiesToSpawn;
   let waveInProgress = state.waveInProgress;
+
+  // Utility towers passively generate gold every tick, but only while a wave is active.
+  if (waveInProgress) {
+    for (const tower of towers) {
+      const def = towerDefById(tower.defId);
+      if (def?.group === "utility") {
+        gold += effectiveStats(def, tower.upgrades).goldPerSecond * dt;
+      }
+    }
+  }
 
   // Spawning
   if (waveInProgress && enemiesToSpawn > 0) {
@@ -171,6 +183,13 @@ export function stepGame(state: GameState, dt: number): GameState {
 
   if (waveInProgress && enemiesToSpawn === 0 && enemies.length === 0) {
     waveInProgress = false;
+    // Pay out utility towers' round-end bonus (e.g. money printer) once the wave clears.
+    for (const tower of towers) {
+      const def = towerDefById(tower.defId);
+      if (def?.group === "utility") {
+        gold += effectiveStats(def, tower.upgrades).roundEndBonus;
+      }
+    }
   }
 
   const gameOver = lives <= 0;

@@ -1,6 +1,5 @@
-import type { GameState } from "./types";
+import type { GameState, TowerUpgrades } from "./types";
 import { STORAGE_KEY, INITIAL_GOLD, INITIAL_LIVES, towerDefById } from "./constants";
-import { emptyUpgrades } from "./upgrades";
 
 export function createNewGameState(): GameState {
   return {
@@ -33,15 +32,24 @@ export function loadGameState(): GameState | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as GameState;
     if (typeof parsed.version !== "number") return null;
-    // Migrate towers saved before upgrade/sell support: fill defaults for any
-    // missing `upgrades`/`totalSpent` fields so old saves don't crash.
+    // Migrate towers saved before upgrade/sell support (or before the
+    // goldPerSecond/roundEndBonus utility stats existed): always rebuild the
+    // `upgrades` object, defaulting any missing field to 0, so old saves
+    // don't crash.
     parsed.towers = parsed.towers.map((t) => {
       const anyTower = t as unknown as Record<string, unknown>;
-      if (anyTower.upgrades && typeof anyTower.totalSpent === "number") return t;
+      const existing = (anyTower.upgrades ?? {}) as Partial<TowerUpgrades>;
+      const upgrades: TowerUpgrades = {
+        damage: existing.damage ?? 0,
+        fireRate: existing.fireRate ?? 0,
+        range: existing.range ?? 0,
+        goldPerSecond: existing.goldPerSecond ?? 0,
+        roundEndBonus: existing.roundEndBonus ?? 0,
+      };
       const def = towerDefById(t.defId);
       return {
         ...t,
-        upgrades: anyTower.upgrades ?? emptyUpgrades(),
+        upgrades,
         totalSpent: typeof anyTower.totalSpent === "number" ? anyTower.totalSpent : def?.cost ?? 0,
       } as GameState["towers"][number];
     });

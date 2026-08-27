@@ -17,6 +17,7 @@ export const TOWER_DEFS: TowerDef[] = [
     icon: "^",
     color: "#33ff66",
     splashRadius: 0,
+    group: "combat",
   },
   {
     id: "cannon",
@@ -28,6 +29,7 @@ export const TOWER_DEFS: TowerDef[] = [
     icon: "#",
     color: "#FF8360",
     splashRadius: 1,
+    group: "combat",
   },
   {
     id: "laser",
@@ -39,6 +41,7 @@ export const TOWER_DEFS: TowerDef[] = [
     icon: "*",
     color: "#33e0ff",
     splashRadius: 0,
+    group: "combat",
   },
   {
     id: "ray",
@@ -50,6 +53,7 @@ export const TOWER_DEFS: TowerDef[] = [
     icon: "?",
     color: "#FF499E",
     splashRadius: 0,
+    group: "combat",
   },
   {
     id: "god",
@@ -61,6 +65,21 @@ export const TOWER_DEFS: TowerDef[] = [
     icon: "@",
     color: "#FFD700",
     splashRadius: 2,
+    group: "combat",
+  },
+  {
+    id: "money-printer",
+    name: "MONEY PRINTER",
+    cost: 500,
+    range: 0,
+    damage: 0,
+    fireRate: 0,
+    icon: "$",
+    color: "#00FF7F",
+    splashRadius: 0,
+    group: "utility",
+    goldPerSecond: 1,
+    roundEndBonus: 50,
   },
 ];
 

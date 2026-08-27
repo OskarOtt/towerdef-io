@@ -123,7 +123,7 @@ export function GameBoard({
         >
           ■
         </div>
-        {selectedTower && (
+        {selectedTower && selectedDef?.group !== "utility" && (
           <div
             className="tower-range-circle"
             style={{
@@ -134,7 +134,7 @@ export function GameBoard({
             }}
           />
         )}
-        {previewCell && draggingDef && (
+        {previewCell && draggingDef && draggingDef.group !== "utility" && (
           <div
             className="tower-range-circle tower-range-preview"
             style={{
