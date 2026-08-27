@@ -7,7 +7,7 @@ export function createNewGameState(): GameState {
     version: 1,
     gold: INITIAL_GOLD,
     lives: INITIAL_LIVES,
-    wave: 0,
+    wave: 49,
     waveInProgress: false,
     towers: [],
     enemies: [],
