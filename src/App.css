@@ -371,6 +371,12 @@
   gap: 16px;
 }
 
+.achievements-modal-close {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
 .achievements-count {
   color: var(--term-green-dim);
   font-size: 11px;
@@ -580,8 +586,9 @@
 }
 
 .upgrade-panel-close {
-  padding: 2px 8px;
-  font-size: 11px;
+  padding: 1px 7px;
+  font-size: 10px;
+  flex: 0 0 auto;
 }
 
 .tower-upgrade-stats {
