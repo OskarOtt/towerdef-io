@@ -8,6 +8,8 @@ export const ACHIEVEMENT_IDS = [
   "hunter-100",
   "hunter-1000",
   "hunter-10000",
+  "hunter-100000",
+  "hunter-1000000",
   "wave-10",
   "wave-50",
   "wave-100",
