@@ -1,6 +1,8 @@
 import type { TowerDef, TowerInstance, TowerUpgrades } from "./types";
 
-export const UPGRADE_STATS = ["damage", "fireRate", "range"] as const;
+export const COMBAT_UPGRADE_STATS = ["damage", "fireRate", "range"] as const;
+export const UTILITY_UPGRADE_STATS = ["goldPerSecond", "roundEndBonus"] as const;
+export const UPGRADE_STATS = [...COMBAT_UPGRADE_STATS, ...UTILITY_UPGRADE_STATS] as const;
 export type UpgradeStat = (typeof UPGRADE_STATS)[number];
 
 /** Fraction of base stat added per upgrade level, per stat. */
@@ -8,6 +10,8 @@ const BONUS_PER_LEVEL: Record<UpgradeStat, number> = {
   damage: 0.2,
   fireRate: 0.15,
   range: 0.1,
+  goldPerSecond: 0.25,
+  roundEndBonus: 0.25,
 };
 
 /** Fraction of sell refund based on total gold ever spent on a tower. */
@@ -19,18 +23,20 @@ export function upgradeCost(def: TowerDef, currentLevel: number): number {
 }
 
 export function emptyUpgrades(): TowerUpgrades {
-  return { damage: 0, fireRate: 0, range: 0 };
+  return { damage: 0, fireRate: 0, range: 0, goldPerSecond: 0, roundEndBonus: 0 };
 }
 
-/** Effective (post-upgrade) damage/fireRate/range for a tower. */
+/** Effective (post-upgrade) stats for a tower, combat and utility alike. */
 export function effectiveStats(
   def: TowerDef,
   upgrades: TowerUpgrades,
-): { damage: number; fireRate: number; range: number } {
+): { damage: number; fireRate: number; range: number; goldPerSecond: number; roundEndBonus: number } {
   return {
     damage: def.damage * (1 + BONUS_PER_LEVEL.damage * upgrades.damage),
     fireRate: def.fireRate * (1 + BONUS_PER_LEVEL.fireRate * upgrades.fireRate),
     range: def.range * (1 + BONUS_PER_LEVEL.range * upgrades.range),
+    goldPerSecond: (def.goldPerSecond ?? 0) * (1 + BONUS_PER_LEVEL.goldPerSecond * upgrades.goldPerSecond),
+    roundEndBonus: (def.roundEndBonus ?? 0) * (1 + BONUS_PER_LEVEL.roundEndBonus * upgrades.roundEndBonus),
   };
 }
 

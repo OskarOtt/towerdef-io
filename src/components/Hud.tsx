@@ -32,7 +32,7 @@ export function Hud({
 }: HudProps) {
   return (
     <div className="hud">
-      <div className="hud-stat">GOLD: ${gold}</div>
+      <div className="hud-stat">GOLD: ${Math.floor(gold)}</div>
       <div className="hud-stat">LIVES: {lives}</div>
       <div className="hud-stat">WAVE: {wave}</div>
       <div className="hud-stat">KILLS: {killCount}</div>
@@ -57,7 +57,7 @@ export function Hud({
           </label>
           <div className="speed-label">SPEED:</div>
           <div className="speed-controls">
-            {[1, 2, 3].map((s) => (
+            {[1, 3, 5].map((s) => (
               <button
                 key={s}
                 className={`term-btn term-btn-small ${speed === s ? "term-btn-active" : ""}`}

@@ -1,7 +1,8 @@
 import type { TowerInstance } from "../game/types";
 import { towerDefById } from "../game/constants";
 import {
-  UPGRADE_STATS,
+  COMBAT_UPGRADE_STATS,
+  UTILITY_UPGRADE_STATS,
   effectiveStats,
   upgradeCost,
   sellValue,
@@ -20,6 +21,8 @@ const STAT_LABEL: Record<UpgradeStat, string> = {
   damage: "DAMAGE",
   fireRate: "FIRE RATE",
   range: "RANGE",
+  goldPerSecond: "GOLD/SEC",
+  roundEndBonus: "ROUND BONUS",
 };
 
 export function TowerUpgradePanel({
@@ -35,6 +38,8 @@ export function TowerUpgradePanel({
 
   const stats = effectiveStats(def, tower.upgrades);
   const refund = sellValue(tower);
+  const isUtility = def.group === "utility";
+  const upgradeStats = isUtility ? UTILITY_UPGRADE_STATS : COMBAT_UPGRADE_STATS;
 
   return (
     <div className="tower-upgrade-panel">
@@ -45,10 +50,19 @@ export function TowerUpgradePanel({
         </button>
       </div>
       <div className="tower-upgrade-stats">
-        DMG {stats.damage.toFixed(1)} &middot; ROF {stats.fireRate.toFixed(2)}/s &middot; RNG{" "}
-        {stats.range.toFixed(1)}
+        {isUtility ? (
+          <>
+            GOLD/SEC {stats.goldPerSecond.toFixed(1)} &middot; ROUND BONUS{" "}
+            {stats.roundEndBonus.toFixed(0)}
+          </>
+        ) : (
+          <>
+            DMG {stats.damage.toFixed(1)} &middot; ROF {stats.fireRate.toFixed(2)}/s &middot; RNG{" "}
+            {stats.range.toFixed(1)}
+          </>
+        )}
       </div>
-      {UPGRADE_STATS.map((stat) => {
+      {upgradeStats.map((stat) => {
         const cost = upgradeCost(def, tower.upgrades[stat]);
         const affordable = gold >= cost;
         return (

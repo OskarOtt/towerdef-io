@@ -6,6 +6,9 @@ export type GridCoord = { row: number; col: number };
 
 export type CellKind = "empty" | "path" | "buildable";
 
+/** "combat" towers attack enemies; "utility" towers provide passive support (e.g. gold generation) and never shoot. */
+export type TowerGroup = "combat" | "utility";
+
 /** Static definition of a tower type available in the shop. */
 export interface TowerDef {
   id: string;
@@ -18,13 +21,25 @@ export interface TowerDef {
   color: string;
   /** Radius in grid cells for splash damage around the primary target. Omitted/0 = single-target only. */
   splashRadius?: number;
+  group: TowerGroup;
+  /** Base gold generated per second. Only set for utility towers. */
+  goldPerSecond?: number;
+  /** Base bonus gold granted when a wave/round ends. Only set for utility towers. */
+  roundEndBonus?: number;
 }
 
-/** Per-stat upgrade levels applied to a placed tower. Uncapped. */
+/**
+ * Per-stat upgrade levels applied to a placed tower. Uncapped. All towers carry
+ * all five fields (rather than only the ones relevant to their group) so the
+ * shape stays uniform/JSON-simple and generic code (achievements, sell refund)
+ * can keep iterating over `Object.values(upgrades)` without special-casing.
+ */
 export interface TowerUpgrades {
   damage: number;
   fireRate: number;
   range: number;
+  goldPerSecond: number;
+  roundEndBonus: number;
 }
 
 /** A tower the player has placed on the board. */
