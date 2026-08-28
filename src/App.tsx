@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import "./App.css";
 import { AchievementsModal } from "./components/AchievementsModal";
+import { HowToPlayModal } from "./components/HowToPlayModal";
 import { AchievementToast } from "./components/AchievementToast";
 import { WelcomeModal } from "./components/WelcomeModal";
 import { GameBoard } from "./components/GameBoard";
@@ -48,6 +49,7 @@ function App() {
   const [autoStartRemainingMs, setAutoStartRemainingMs] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [achievementsOpen, setAchievementsOpen] = useState(false);
+  const [howToPlayOpen, setHowToPlayOpen] = useState(false);
   const [earnedAchievementIds, setEarnedAchievementIds] = useState<AchievementId[]>(
     () => loadEarnedAchievements(),
   );
@@ -237,6 +239,15 @@ function App() {
         <h1>&gt;&gt; TOWERDEF.IO_TERMINAL DEFENSE SYSTEM</h1>
         <div className="header-actions">
           <button
+            className="term-btn term-btn-small header-how-to-play-btn"
+            onClick={() => {
+              setMenuOpen(false);
+              setHowToPlayOpen(true);
+            }}
+          >
+            [ HOW TO PLAY ]
+          </button>
+          <button
             className="term-btn term-btn-small header-achievements-btn"
             onClick={() => {
               setMenuOpen(false);
@@ -318,6 +329,7 @@ function App() {
           onClose={() => setAchievementsOpen(false)}
         />
       )}
+      {howToPlayOpen && <HowToPlayModal onClose={() => setHowToPlayOpen(false)} />}
       <footer className="app-footer">
         [ Made by{" "}
         <a href="https://www.oskott.com/" target="_blank" rel="noopener noreferrer">

@@ -47,7 +47,13 @@ export function sellValue(tower: TowerInstance): number {
 
 /** Combined upgrade count across all stats, used to size the roman-numeral badge. */
 export function totalUpgradeCount(tower: TowerInstance): number {
-  return tower.upgrades.damage + tower.upgrades.fireRate + tower.upgrades.range;
+  return (
+    tower.upgrades.damage +
+    tower.upgrades.fireRate +
+    tower.upgrades.range +
+    tower.upgrades.goldPerSecond +
+    tower.upgrades.roundEndBonus
+  );
 }
 
 const ROMAN_TABLE: [number, string][] = [

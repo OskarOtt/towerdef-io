@@ -206,10 +206,7 @@
 
 .header-actions .term-btn {
   white-space: nowrap;
-}
-
-.header-achievements-btn {
-  min-width: 148px;
+  flex: 0 0 auto;
 }
 
 .app-main {
@@ -426,6 +423,39 @@
 
 .achievement-entry-locked {
   opacity: 0.45;
+}
+
+.how-to-play-modal {
+  width: min(480px, calc(100vw - 32px));
+  max-height: 72vh;
+  overflow: auto;
+}
+
+.how-to-play-modal-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.how-to-play-modal-close {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+.how-to-play-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding-left: 20px;
+}
+
+.how-to-play-entry {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--term-green-dim);
 }
 
 .achievement-entry-locked .achievement-entry-status {

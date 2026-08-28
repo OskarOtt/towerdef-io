@@ -87,14 +87,12 @@ export function towerDefById(id: string): TowerDef | undefined {
   return TOWER_DEFS.find((t) => t.id === id);
 }
 
-/** Enemy HP/count scale with wave number to keep later waves harder. */
 export function enemiesForWave(wave: number): number {
-  return 6 + Math.floor(wave * 1.8);
+  return 6 + Math.floor(wave * 1.5);
 }
 
-/** Lowered from 20 base / 12 per wave to make early waves less punishing. */
 export function enemyHpForWave(wave: number): number {
-  return 14 + wave * 8.3;
+  return 14 + wave * 8.6;
 }
 
 export function enemySpeedForWave(wave: number): number {
