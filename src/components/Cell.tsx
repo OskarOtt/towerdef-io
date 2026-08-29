@@ -13,6 +13,8 @@ interface CellProps {
   selected: boolean;
   onSelectTower: (id: string | null) => void;
   onHoverCell: (cell: { row: number; col: number } | null) => void;
+  selectedShopDefId: string | null;
+  onTapPlaceTower: (row: number, col: number) => void;
 }
 
 export function Cell({
@@ -25,6 +27,8 @@ export function Cell({
   selected,
   onSelectTower,
   onHoverCell,
+  selectedShopDefId,
+  onTapPlaceTower,
 }: CellProps) {
   const buildable = !isPath && !tower;
 
@@ -41,6 +45,10 @@ export function Cell({
   };
 
   const handleClick = () => {
+    if (buildable && selectedShopDefId) {
+      onTapPlaceTower(row, col);
+      return;
+    }
     onSelectTower(tower ? tower.id : null);
   };
 
@@ -54,7 +62,7 @@ export function Cell({
         "cell",
         isPath ? "cell-path" : "cell-buildable",
         buildable ? "cell-droppable" : "",
-        buildable && draggingTower ? "cell-glow" : "",
+        buildable && (draggingTower || !!selectedShopDefId) ? "cell-glow" : "",
         tower ? "cell-tower" : "",
         selected ? "cell-selected" : "",
       ]

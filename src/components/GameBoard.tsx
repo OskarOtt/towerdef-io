@@ -12,6 +12,9 @@ interface GameBoardProps {
   draggingDefId: string | null;
   selectedTowerId: string | null;
   onSelectTower: (id: string | null) => void;
+  /** Def id chosen via tap-to-select (mobile); tapping a buildable cell places it. */
+  selectedShopDefId: string | null;
+  onTapPlaceTower: (row: number, col: number) => void;
 }
 
 export function GameBoard({
@@ -21,6 +24,8 @@ export function GameBoard({
   draggingDefId,
   selectedTowerId,
   onSelectTower,
+  selectedShopDefId,
+  onTapPlaceTower,
 }: GameBoardProps) {
   const towerAt = (row: number, col: number) =>
     state.towers.find((t) => t.row === row && t.col === col);
@@ -73,6 +78,8 @@ export function GameBoard({
           selected={!!tower && tower.id === selectedTowerId}
           onSelectTower={onSelectTower}
           onHoverCell={setHoveredCell}
+          selectedShopDefId={selectedShopDefId}
+          onTapPlaceTower={onTapPlaceTower}
         />,
       );
     }

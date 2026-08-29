@@ -5,6 +5,9 @@ import type { TowerDef, TowerGroup } from "../game/types";
 interface TowerShopProps {
   gold: number;
   onDragStateChange: (defId: string | null) => void;
+  /** Def id chosen via tap-to-select (mobile), or null if none selected. */
+  selectedDefId: string | null;
+  onSelectDef: (defId: string | null) => void;
 }
 
 const GROUP_LABEL: Record<TowerGroup, string> = {
@@ -12,7 +15,12 @@ const GROUP_LABEL: Record<TowerGroup, string> = {
   utility: "UTILITY",
 };
 
-export function TowerShop({ gold, onDragStateChange }: TowerShopProps) {
+export function TowerShop({
+  gold,
+  onDragStateChange,
+  selectedDefId,
+  onSelectDef,
+}: TowerShopProps) {
   const handleDragStart = (
     e: DragEvent<HTMLDivElement>,
     defId: string,
@@ -38,13 +46,20 @@ export function TowerShop({ gold, onDragStateChange }: TowerShopProps) {
 
   const renderCard = (def: TowerDef) => {
     const affordable = gold >= def.cost;
+    const selected = selectedDefId === def.id;
     return (
       <div
         key={def.id}
-        className={`tower-card ${affordable ? "" : "tower-card-disabled"}`}
+        className={`tower-card ${affordable ? "" : "tower-card-disabled"} ${
+          selected ? "tower-card-selected" : ""
+        }`}
         draggable={affordable}
         onDragStart={(e) => handleDragStart(e, def.id, def.icon, def.color)}
         onDragEnd={handleDragEnd}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (affordable) onSelectDef(def.id);
+        }}
       >
         <span className="tower-card-icon" style={{ color: def.color }}>
           {def.icon}
@@ -85,7 +100,7 @@ export function TowerShop({ gold, onDragStateChange }: TowerShopProps) {
           {utilityDefs.map(renderCard)}
         </>
       )}
-      <p className="shop-hint">&gt; DRAG TOWER ONTO OPEN GROUND</p>
+      <p className="shop-hint">&gt; DRAG OR TAP A TOWER, THEN TAP OPEN GROUND</p>
     </div>
   );
 }
