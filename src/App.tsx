@@ -44,6 +44,9 @@ function App() {
   );
   const [speed, setSpeed] = useState(1);
   const [draggingDefId, setDraggingDefId] = useState<string | null>(null);
+  // Tap-to-select-then-tap-to-place flow (used on touch devices where HTML5
+  // drag-and-drop doesn't work reliably), independent from draggingDefId.
+  const [selectedShopDefId, setSelectedShopDefId] = useState<string | null>(null);
   const [selectedTowerId, setSelectedTowerId] = useState<string | null>(null);
   const [autoStart, setAutoStart] = useState(false);
   const [autoStartRemainingMs, setAutoStartRemainingMs] = useState<number | null>(null);
@@ -190,6 +193,19 @@ function App() {
     setSelectedTowerId(id);
   }, []);
 
+  const handleSelectShopDef = useCallback((defId: string | null) => {
+    setSelectedShopDefId((prev) => (prev === defId ? null : defId));
+  }, []);
+
+  const handleTapPlaceTower = useCallback(
+    (row: number, col: number) => {
+      if (!selectedShopDefId) return;
+      handleDropTower(row, col, selectedShopDefId);
+      setSelectedShopDefId(null);
+    },
+    [selectedShopDefId, handleDropTower],
+  );
+
   const handleUpgradeTower = useCallback((id: string, stat: UpgradeStat) => {
     setState((prev) => {
       const tower = prev.towers.find((t) => t.id === id);
@@ -265,7 +281,12 @@ function App() {
         className={`app-main${screen === "welcome" ? " app-main-dimmed" : ""}`}
         onClick={() => handleSelectTower(null)}
       >
-        <TowerShop gold={state.gold} onDragStateChange={setDraggingDefId} />
+        <TowerShop
+          gold={state.gold}
+          onDragStateChange={setDraggingDefId}
+          selectedDefId={selectedShopDefId}
+          onSelectDef={handleSelectShopDef}
+        />
         <div className="board-column">
           <GameBoard
             state={state}
@@ -274,6 +295,8 @@ function App() {
             draggingDefId={draggingDefId}
             selectedTowerId={selectedTowerId}
             onSelectTower={handleSelectTower}
+            selectedShopDefId={selectedShopDefId}
+            onTapPlaceTower={handleTapPlaceTower}
           />
           {activeAchievement && achievementTimerFraction !== null && (
             <AchievementToast
@@ -304,7 +327,16 @@ function App() {
             onToggleAutoStart={setAutoStart}
           />
           {selectedTowerId && (
-            <div onClick={(e) => e.stopPropagation()}>
+            <div
+              className="upgrade-panel-wrap"
+              onClick={(e) => {
+                e.stopPropagation();
+                // On mobile this wrapper is a full-screen backdrop; a click
+                // directly on the backdrop (not bubbled from the panel
+                // itself) dismisses it, same as the other modals.
+                if (e.target === e.currentTarget) handleSelectTower(null);
+              }}
+            >
               <TowerUpgradePanel
                 tower={state.towers.find((t) => t.id === selectedTowerId) ?? null}
                 gold={state.gold}
