@@ -1,0 +1,32 @@
+{
+  "name": "Towerdef.io - Terminal Tower Defense",
+  "short_name": "Towerdef.io",
+  "description": "Towerdef.io is a free browser-based tower defense game with a retro terminal/CRT theme. Place and upgrade towers, earn gold, and survive escalating enemy waves in your browser—no download, install, or sign-up required.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#060a06",
+  "theme_color": "#060a06",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

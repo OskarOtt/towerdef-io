@@ -723,6 +723,40 @@
   text-shadow: 0 0 4px rgba(255, 176, 0, 0.8);
 }
 
+/* ---------- SEO content ---------- */
+/* A small, collapsed-by-default disclosure with real descriptive text and
+   internal links, so search engines have crawlable content beyond the meta
+   description. Collapsed (not hidden) so it stays genuinely user-accessible —
+   fully hiding indexed text (opacity:0/display:none) risks being flagged as
+   deceptive "hidden text" by search engines. */
+.seo-info {
+  max-width: 640px;
+  margin: 12px auto 48px;
+  padding: 0 16px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--term-green-dim);
+  text-align: center;
+}
+
+.seo-info summary {
+  cursor: pointer;
+  color: var(--term-green-dim);
+  opacity: 0.6;
+}
+
+.seo-info summary:hover {
+  opacity: 1;
+}
+
+.seo-info p {
+  margin: 8px 0 0;
+}
+
+.seo-info a {
+  color: var(--term-green);
+}
+
 /* ---------- Footer ---------- */
 .app-footer {
   position: fixed;

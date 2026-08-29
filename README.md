@@ -32,6 +32,20 @@ Pushes to `main` automatically build and publish `dist/` to GitHub Pages via `.g
 
 ### Custom domain and SEO
 
-The production URL is `https://towerdef.io/`. The build publishes a `CNAME`, `robots.txt`, and `sitemap.xml` for that domain. Before deploying it, configure `towerdef.io` as the repository's GitHub Pages custom domain and point its DNS records to GitHub Pages.
+The production URL is `https://towerdef.io/`. `npm run build`'s `prebuild` step
+(`scripts/generate-seo-assets.mjs`) generates, into `public/`: `CNAME`,
+`robots.txt`, `sitemap.xml` (with `<lastmod>` and entries for the static
+`how-to-play.html`/`towers.html` pages), `manifest.json`'s referenced icons
+(`apple-touch-icon.png`, `icon-192.png`, `icon-512.png`), and a branded
+`og-image.png` social share image — all derived from `scripts/seo-config.mjs`
+and `public/favicon.svg`. `index.html` uses `__SITE_TITLE__` /
+`__SITE_DESCRIPTION__` / `__SITE_KEYWORDS__` / `__SITE_URL__` placeholders
+(replaced by the `inject-seo-metadata` Vite plugin in `vite.config.ts`) for the
+title, meta tags, canonical URL, and Open Graph/Twitter tags, plus inline
+JSON-LD `VideoGame` structured data. Before deploying, configure `towerdef.io`
+as the repository's GitHub Pages custom domain and point its DNS records to
+GitHub Pages.
 
-To add the site to Google Search Console, create a URL-prefix property for `https://towerdef.io/`, add the verification meta tag Google provides to `index.html`, deploy it, and submit `https://towerdef.io/sitemap.xml`.
+To add the site to Google Search Console, create a URL-prefix property for
+`https://towerdef.io/`, add the verification meta tag Google provides to
+`index.html`, deploy it, and submit `https://towerdef.io/sitemap.xml`.

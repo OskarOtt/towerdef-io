@@ -330,6 +330,16 @@ function App() {
         />
       )}
       {howToPlayOpen && <HowToPlayModal onClose={() => setHowToPlayOpen(false)} />}
+      <details className="seo-info">
+        <summary>About Towerdef.io</summary>
+        <p>
+          Towerdef.io is a free, no-download, no-signup browser tower defense game with a
+          retro terminal/CRT theme. Place and upgrade towers, earn gold, and survive
+          escalating enemy waves &mdash; see the{" "}
+          <a href="/how-to-play.html">how to play guide</a> or the{" "}
+          <a href="/towers.html">tower guide</a> for strategy tips.
+        </p>
+      </details>
       <footer className="app-footer">
         [ Made by{" "}
         <a href="https://www.oskott.com/" target="_blank" rel="noopener noreferrer">
