@@ -1,53 +1,92 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
+  packages: write
 
 jobs:
-  build:
+  build-and-deploy:
+
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+
+      # -------------------------
+      # 1. Get repository code
+      # -------------------------
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+
+      # -------------------------
+      # 2. Log in to GHCR
+      # -------------------------
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          node-version: 20
-          cache: npm
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
-        run: npm ci
 
-      - name: Build
-        run: npm run build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      # -------------------------
+      # 3. Build and push image
+      # -------------------------
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          path: dist
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_API_URL=https://api.towerdef.io
+
+
+      # -------------------------
+      # 4. Copy Kubernetes files
+      # -------------------------
+      - name: Copy Kubernetes files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: 2222
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "k8s/*"
+          target: "/home/${{ secrets.SSH_USER }}/pipeline/towerdef-io"
+
+
+      # -------------------------
+      # 5. Deploy to MicroK8s
+      # -------------------------
+      - name: Deploy application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2222
+          script: |
+            microk8s kubectl apply -f /home/${{ secrets.SSH_USER }}/pipeline/towerdef-io/k8s
+
+            microk8s kubectl rollout restart deployment/towerdef-io
+
+            microk8s kubectl rollout status deployment/towerdef-io --timeout=120s

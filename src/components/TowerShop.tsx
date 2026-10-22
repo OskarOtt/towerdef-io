@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { DragEvent } from "react";
 import { TOWER_DEFS } from "../game/constants";
 import type { TowerDef, TowerGroup } from "../game/types";
@@ -21,6 +22,30 @@ export function TowerShop({
   selectedDefId,
   onSelectDef,
 }: TowerShopProps) {
+  const [info, setInfo] = useState<{ def: TowerDef; rect: DOMRect } | null>(
+    null,
+  );
+
+  const statLines = (def: TowerDef): string[] => {
+    if (def.id === "stacker") return ["Lets one cell hold more towers"];
+    if (def.group === "utility") {
+      return [
+        `Gold/sec: ${def.goldPerSecond ?? 0}`,
+        `Bonus/round: ${def.roundEndBonus ?? 0}`,
+      ];
+    }
+    const lines = [
+      `Damage: ${def.damage}`,
+      `Fire rate: ${def.fireRate}/s`,
+      `Range: ${def.range}`,
+    ];
+    if (def.chainTargets) lines.push(`Chains to: ${def.chainTargets} enemies`);
+    if (def.splashRadius && def.splashRadius > 0) {
+      lines.push(`Splash: ${def.splashRadius}`);
+    }
+    return lines;
+  };
+
   const handleDragStart = (
     e: DragEvent<HTMLDivElement>,
     defId: string,
@@ -66,22 +91,18 @@ export function TowerShop({
         </span>
         <div className="tower-card-info">
           <div className="tower-card-name">{def.name}</div>
-          {def.group === "utility" ? (
-            <div className="tower-card-stats">
-              GOLD/SEC-{def.goldPerSecond ?? 0} BONUS/ROUND-{def.roundEndBonus ?? 0}
-            </div>
-          ) : (
-            <>
-              <div className="tower-card-stats">
-                DMG-{def.damage} ROF-{def.fireRate}/s
-              </div>
-              <div className="tower-card-stats">
-                RANGE-{def.range} {def.splashRadius && (def.splashRadius>0) ? `SPLASH-${def.splashRadius}` : ""}
-              </div>
-            </>
-          )}
           <div className="tower-card-cost">${def.cost}</div>
         </div>
+        <span
+          className="tower-card-help"
+          aria-label={`${def.name} stats`}
+          onMouseEnter={(e) =>
+            setInfo({ def, rect: e.currentTarget.getBoundingClientRect() })
+          }
+          onMouseLeave={() => setInfo(null)}
+        >
+          i
+        </span>
       </div>
     );
   };
@@ -99,6 +120,16 @@ export function TowerShop({
           <div className="shop-group-label">[ {GROUP_LABEL.utility} ]</div>
           {utilityDefs.map(renderCard)}
         </>
+      )}
+      {info && (
+        <ul
+          className="tower-info-popup"
+          style={{ top: info.rect.top, left: info.rect.right + 8 }}
+        >
+          {statLines(info.def).map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
       )}
       <p className="shop-hint">&gt; DRAG OR TAP A TOWER, THEN TAP OPEN GROUND</p>
     </div>

@@ -7,10 +7,12 @@ interface CellProps {
   row: number;
   col: number;
   isPath: boolean;
-  tower: TowerInstance | undefined;
+  towers: TowerInstance[];
+  /** Whether the dragged/selected shop def can be placed here. */
+  canPlace: boolean;
+  selectedTowerId: string | null;
   onDropTower: (row: number, col: number, defId: string) => void;
   draggingTower: boolean;
-  selected: boolean;
   onSelectTower: (id: string | null) => void;
   onHoverCell: (cell: { row: number; col: number } | null) => void;
   selectedShopDefId: string | null;
@@ -21,16 +23,19 @@ export function Cell({
   row,
   col,
   isPath,
-  tower,
+  towers,
+  canPlace,
+  selectedTowerId,
   onDropTower,
   draggingTower,
-  selected,
   onSelectTower,
   onHoverCell,
   selectedShopDefId,
   onTapPlaceTower,
 }: CellProps) {
-  const buildable = !isPath && !tower;
+  const tower = towers[0];
+  const selected = towers.some((t) => t.id === selectedTowerId);
+  const buildable = !isPath && canPlace;
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     if (buildable) e.preventDefault();
@@ -49,12 +54,8 @@ export function Cell({
       onTapPlaceTower(row, col);
       return;
     }
-    onSelectTower(tower ? tower.id : null);
+    onSelectTower(tower ? (selected ? selectedTowerId : tower.id) : null);
   };
-
-  const def = tower ? towerDefById(tower.defId) : undefined;
-  const upgradeCount = tower ? totalUpgradeCount(tower) : 0;
-  const roman = upgradeCount > 0 ? toRoman(upgradeCount) : "";
 
   return (
     <div
@@ -63,7 +64,7 @@ export function Cell({
         isPath ? "cell-path" : "cell-buildable",
         buildable ? "cell-droppable" : "",
         buildable && (draggingTower || !!selectedShopDefId) ? "cell-glow" : "",
-        tower ? "cell-tower" : "",
+        towers.length ? "cell-tower" : "",
         selected ? "cell-selected" : "",
       ]
         .filter(Boolean)
@@ -71,14 +72,39 @@ export function Cell({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onClick={handleClick}
-      title={isPath ? "path" : def ? def.name : "empty"}
+      title={isPath ? "path" : towers.length ? towers.map((t) => towerDefById(t.defId)?.name).join(" + ") : "empty"}
     >
-      {def && (
-        <span className="tower-icon" style={{ color: def.color }}>
-          {def.icon}
-        </span>
+      {towers.length === 1 ? (
+        <TowerGlyph tower={towers[0]} />
+      ) : (
+        towers.length > 1 && (
+          <div className="cell-stack">
+            {towers.map((t) => (
+              <TowerGlyph key={t.id} tower={t} mini />
+            ))}
+          </div>
+        )
       )}
-      {roman && <span className="tower-upgrade-badge">{roman}</span>}
     </div>
   );
+}
+
+function TowerGlyph({ tower, mini }: { tower: TowerInstance; mini?: boolean }) {
+  const def = towerDefById(tower.defId);
+  if (!def) return null;
+  const count = totalUpgradeCount(tower);
+  const roman = count > 0 ? toRoman(count) : "";
+  const content = (
+    <>
+      <span className={mini ? "tower-icon tower-icon-mini" : "tower-icon"} style={{ color: def.color }}>
+        {def.icon}
+      </span>
+      {roman && (
+        <span className={mini ? "tower-upgrade-badge tower-upgrade-badge-mini" : "tower-upgrade-badge"}>
+          {roman}
+        </span>
+      )}
+    </>
+  );
+  return mini ? <div className="cell-stack-item">{content}</div> : content;
 }

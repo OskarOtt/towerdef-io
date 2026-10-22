@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import { AchievementsModal } from "./components/AchievementsModal";
+import { LeaderboardModal } from "./components/LeaderboardModal";
 import { HowToPlayModal } from "./components/HowToPlayModal";
 import { AchievementToast } from "./components/AchievementToast";
 import { WelcomeModal } from "./components/WelcomeModal";
@@ -16,7 +17,15 @@ import {
   clearGameState,
 } from "./game/storage";
 import { stepGame, startNextWave, useGameLoop } from "./game/useGameLoop";
-import { towerDefById, AUTO_START_DELAY_MS } from "./game/constants";
+import { towerDefById, AUTO_START_DELAY_MS, STACKER_ID, STACKER_UPGRADE_COST } from "./game/constants";
+import { canPlaceAt, towersAt } from "./game/stacking";
+import {
+  clearRun,
+  loadLeaderboardName,
+  normalizeName,
+  saveLeaderboardName,
+} from "./game/leaderboardStorage";
+import { submitCurrentScore } from "./game/leaderboardSync";
 import { TowerUpgradePanel } from "./components/TowerUpgradePanel";
 import {
   emptyUpgrades,
@@ -36,6 +45,8 @@ import {
 
 type Screen = "welcome" | "playing";
 
+const LEADERBOARD_SYNC_INTERVAL_MS = 5 * 60 * 1000;
+
 function App() {
   const [screen, setScreen] = useState<Screen>("welcome");
   const [hasSave] = useState<boolean>(() => hasSavedGame());
@@ -53,13 +64,28 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [achievementsOpen, setAchievementsOpen] = useState(false);
   const [howToPlayOpen, setHowToPlayOpen] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [leaderboardName, setLeaderboardName] = useState<string | null>(() =>
+    loadLeaderboardName(),
+  );
+  const stateRef = useRef(state);
+  const nameRef = useRef(leaderboardName);
+  useEffect(() => {
+    stateRef.current = state;
+    nameRef.current = leaderboardName;
+  }, [state, leaderboardName]);
+  const lastSentRef = useRef<string | null>(null);
   const [earnedAchievementIds, setEarnedAchievementIds] = useState<AchievementId[]>(
     () => loadEarnedAchievements(),
   );
   const [achievementQueue, setAchievementQueue] = useState<AchievementDefinition[]>([]);
   const [achievementTimerFraction, setAchievementTimerFraction] = useState<number | null>(null);
 
-  const handleStartNew = useCallback(() => {
+  const handleStartNew = useCallback((name: string) => {
+    saveLeaderboardName(name);
+    setLeaderboardName(name);
+    clearRun();
+    lastSentRef.current = null;
     const fresh = createNewGameState();
     setState(fresh);
     clearGameState();
@@ -67,7 +93,12 @@ function App() {
     setMenuOpen(false);
   }, []);
 
-  const handleResume = useCallback(() => {
+  const handleResume = useCallback((name: string | null) => {
+    if (name) {
+      saveLeaderboardName(name);
+      setLeaderboardName(name);
+      nameRef.current = name;
+    }
     const saved = loadGameState();
     setState(saved ?? createNewGameState());
     setScreen("playing");
@@ -128,6 +159,19 @@ function App() {
     setState((prev) => startNextWave(prev));
   }, []);
 
+  // Dev-only cheat: "+" grants 1000 gold. Stripped from production builds.
+  useEffect(() => {
+    if (!import.meta.env.DEV || screen !== "playing") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "+") return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+      setState((prev) => ({ ...prev, gold: prev.gold + 1000 }));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [screen]);
+
   // Autostart: while enabled and no wave is running, count down and then
   // kick off the next wave automatically. Cancels/resets whenever a wave
   // starts, autostart is turned off, or the game ends.
@@ -169,10 +213,12 @@ function App() {
       const def = towerDefById(defId);
       if (!def) return prev;
       if (prev.gold < def.cost) return prev;
-      if (prev.towers.some((t) => t.row === row && t.col === col)) return prev;
+      if (!canPlaceAt(prev.towers, row, col, defId)) return prev;
       return {
         ...prev,
         gold: prev.gold - def.cost,
+        spentSinceWaveClear: true,
+        godTowersPlaced: prev.godTowersPlaced + (defId === "god" ? 1 : 0),
         towers: [
           ...prev.towers,
           {
@@ -217,6 +263,7 @@ function App() {
       return {
         ...prev,
         gold: prev.gold - cost,
+        spentSinceWaveClear: true,
         towers: prev.towers.map((t) =>
           t.id === id
             ? {
@@ -230,20 +277,84 @@ function App() {
     });
   }, []);
 
+  const handleUpgradeStacker = useCallback((id: string) => {
+    setState((prev) => {
+      const tower = prev.towers.find((t) => t.id === id);
+      if (!tower || tower.defId !== STACKER_ID || tower.stackUpgraded) return prev;
+      if (prev.gold < STACKER_UPGRADE_COST) return prev;
+      return {
+        ...prev,
+        gold: prev.gold - STACKER_UPGRADE_COST,
+        spentSinceWaveClear: true,
+        towers: prev.towers.map((t) =>
+          t.id === id
+            ? { ...t, stackUpgraded: true, totalSpent: t.totalSpent + STACKER_UPGRADE_COST }
+            : t,
+        ),
+      };
+    });
+  }, []);
+
   const handleSellTower = useCallback((id: string) => {
+    let sold = false;
     setState((prev) => {
       const tower = prev.towers.find((t) => t.id === id);
       if (!tower) return prev;
+      if (tower.defId === STACKER_ID && towersAt(prev.towers, tower.row, tower.col).length > 2) {
+        return prev;
+      }
+      sold = true;
       return {
         ...prev,
         gold: prev.gold + sellValue(tower),
         towers: prev.towers.filter((t) => t.id !== id),
       };
     });
-    setSelectedTowerId(null);
+    if (sold) setSelectedTowerId(null);
   }, []);
 
+  const handleSetLeaderboardName = useCallback((name: string) => {
+    const clean = normalizeName(name);
+    if (!clean) return;
+    saveLeaderboardName(clean);
+    setLeaderboardName(clean);
+    nameRef.current = clean;
+    void submitCurrentScore(clean, stateRef.current);
+  }, []);
+
+  const handleUpdateScore = useCallback(() => {
+    const snapshot = stateRef.current;
+    return submitCurrentScore(nameRef.current, snapshot).then((result) => {
+      if (result === "ok") lastSentRef.current = `${snapshot.wave}:${snapshot.killCount}`;
+      return result;
+    });
+  }, []);
+
+  // Push the score every few minutes while playing (and once on game over),
+  // skipping when there is no leaderboard name or nothing changed.
+  useEffect(() => {
+    if (screen !== "playing") return;
+    const send = () => {
+      const s = stateRef.current;
+      const key = `${s.wave}:${s.killCount}`;
+      if (!nameRef.current || key === lastSentRef.current) return;
+      void submitCurrentScore(nameRef.current, s).then((result) => {
+        if (result === "ok") lastSentRef.current = key;
+      });
+    };
+    const id = window.setInterval(send, LEADERBOARD_SYNC_INTERVAL_MS);
+    return () => window.clearInterval(id);
+  }, [screen]);
+
+  useEffect(() => {
+    if (screen === "playing" && state.gameOver && nameRef.current) {
+      void handleUpdateScore();
+    }
+  }, [screen, state.gameOver, handleUpdateScore]);
+
   const handleNewGameFromGameOver = useCallback(() => {
+    clearRun();
+    lastSentRef.current = null;
     clearGameState();
     setState(createNewGameState());
   }, []);
@@ -262,6 +373,15 @@ function App() {
             }}
           >
             [ HOW TO PLAY ]
+          </button>
+          <button
+            className="term-btn term-btn-small header-leaderboard-btn"
+            onClick={() => {
+              setMenuOpen(false);
+              setLeaderboardOpen(true);
+            }}
+          >
+            [ LEADERBOARD ]
           </button>
           <button
             className="term-btn term-btn-small header-achievements-btn"
@@ -298,15 +418,17 @@ function App() {
             selectedShopDefId={selectedShopDefId}
             onTapPlaceTower={handleTapPlaceTower}
           />
-          {activeAchievement && achievementTimerFraction !== null && (
-            <AchievementToast
-              achievement={activeAchievement}
-              remainingFraction={achievementTimerFraction}
-              onDismiss={() =>
-                setAchievementQueue((previous) => previous.slice(1))
-              }
-            />
-          )}
+          <div className="achievement-toast-slot">
+            {activeAchievement && achievementTimerFraction !== null && (
+              <AchievementToast
+                achievement={activeAchievement}
+                remainingFraction={achievementTimerFraction}
+                onDismiss={() =>
+                  setAchievementQueue((previous) => previous.slice(1))
+                }
+              />
+            )}
+          </div>
         </div>
         <div className="hud-column">
           <Hud
@@ -339,6 +461,12 @@ function App() {
             >
               <TowerUpgradePanel
                 tower={state.towers.find((t) => t.id === selectedTowerId) ?? null}
+                cellTowers={(() => {
+                  const sel = state.towers.find((t) => t.id === selectedTowerId);
+                  return sel ? towersAt(state.towers, sel.row, sel.col) : [];
+                })()}
+                onSelectTab={handleSelectTower}
+                onUpgradeStacker={() => handleUpgradeStacker(selectedTowerId)}
                 gold={state.gold}
                 onUpgrade={(stat) => handleUpgradeTower(selectedTowerId, stat)}
                 onSell={() => handleSellTower(selectedTowerId)}
@@ -351,6 +479,7 @@ function App() {
       {(screen === "welcome" || menuOpen) && (
         <WelcomeModal
           hasSave={hasSave || screen === "playing"}
+          initialName={leaderboardName}
           onStartNew={handleStartNew}
           onResume={handleResume}
         />
@@ -359,6 +488,15 @@ function App() {
         <AchievementsModal
           earnedIds={earnedAchievementIds}
           onClose={() => setAchievementsOpen(false)}
+        />
+      )}
+      {leaderboardOpen && (
+        <LeaderboardModal
+          name={leaderboardName}
+          canSubmit={screen === "playing"}
+          onSetName={handleSetLeaderboardName}
+          onUpdateScore={handleUpdateScore}
+          onClose={() => setLeaderboardOpen(false)}
         />
       )}
       {howToPlayOpen && <HowToPlayModal onClose={() => setHowToPlayOpen(false)} />}

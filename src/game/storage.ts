@@ -15,6 +15,12 @@ export function createNewGameState(): GameState {
     spawnTimer: 0,
     gameOver: false,
     killCount: 0,
+    livesAtWaveStart: INITIAL_LIVES,
+    cleanWaveStreak: 0,
+    spentSinceWaveClear: false,
+    noSpendWaveStreak: 0,
+    lowLifeWaveClears: 0,
+    godTowersPlaced: 0,
   };
 }
 
@@ -56,6 +62,16 @@ export function loadGameState(): GameState | null {
     // Migrate saves from before kill counter was tracked.
     if (typeof parsed.killCount !== "number") {
       parsed.killCount = 0;
+    }
+    // Migrate saves from before wave-streak achievement tracking.
+    if (typeof parsed.livesAtWaveStart !== "number") parsed.livesAtWaveStart = parsed.lives;
+    if (typeof parsed.cleanWaveStreak !== "number") parsed.cleanWaveStreak = 0;
+    if (typeof parsed.spentSinceWaveClear !== "boolean") parsed.spentSinceWaveClear = false;
+    if (typeof parsed.noSpendWaveStreak !== "number") parsed.noSpendWaveStreak = 0;
+    if (typeof parsed.lowLifeWaveClears !== "number") parsed.lowLifeWaveClears = 0;
+    // Old saves can't tell how many GOD towers were ever placed; assume the current count.
+    if (typeof parsed.godTowersPlaced !== "number") {
+      parsed.godTowersPlaced = parsed.towers.filter((t) => t.defId === "god").length;
     }
     return parsed;
   } catch {

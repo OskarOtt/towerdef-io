@@ -1,5 +1,5 @@
-import { TOWER_DEFS } from "./constants";
-import type { GameState } from "./types";
+import { STACKER_ID, TOWER_DEFS } from "./constants";
+import type { GameState, TowerInstance } from "./types";
 
 export const ACHIEVEMENT_IDS = [
   "first-deploy",
@@ -23,6 +23,23 @@ export const ACHIEVEMENT_IDS = [
   "money1",
   "money2",
   "money3",
+  "low-life-clear",
+  "flawless-5",
+  "flawless-10",
+  "flawless-50",
+  "frugal-5",
+  "frugal-10",
+  "lone-god-10",
+  "lone-god-50",
+  "lone-god-100",
+  "stack-2",
+  "stack-3",
+  "twins",
+  "triplets",
+  "stack-lv-10",
+  "stack-lv-25",
+  "stack-lv-50",
+  "completionist",
 ] as const;
 
 export type AchievementId = (typeof ACHIEVEMENT_IDS)[number];
@@ -32,6 +49,47 @@ export interface AchievementDefinition {
   name: string;
   description: string;
   isUnlocked: (state: GameState) => boolean;
+}
+
+/** Exactly one GOD tower was ever placed this run, and it is still standing. */
+function isLoneGod(state: GameState, wave: number): boolean {
+  return (
+    state.wave >= wave &&
+    state.godTowersPlaced === 1 &&
+    state.towers.some((tower) => tower.defId === "god")
+  );
+}
+
+/** Non-stacker towers grouped by cell, only for cells that actually have a stacker. */
+function stackedCells(state: GameState): TowerInstance[][] {
+  const cells = new Map<string, TowerInstance[]>();
+  for (const tower of state.towers) {
+    const key = `${tower.row},${tower.col}`;
+    const list = cells.get(key) ?? [];
+    list.push(tower);
+    cells.set(key, list);
+  }
+  return [...cells.values()]
+    .filter((list) => list.some((t) => t.defId === STACKER_ID))
+    .map((list) => list.filter((t) => t.defId !== STACKER_ID));
+}
+
+function hasStackOf(state: GameState, count: number): boolean {
+  return stackedCells(state).some((cell) => cell.length >= count);
+}
+
+function hasSameTypeStackOf(state: GameState, count: number): boolean {
+  return stackedCells(state).some((cell) =>
+    cell.some((t) => cell.filter((o) => o.defId === t.defId).length >= count),
+  );
+}
+
+/** A stacked cell with 3 towers that each have some stat at or above `level`. */
+function hasUpgradedStack(state: GameState, level: number): boolean {
+  return stackedCells(state).some(
+    (cell) =>
+      cell.filter((t) => Object.values(t.upgrades).some((l) => l >= level)).length >= 3,
+  );
 }
 
 export const ACHIEVEMENTS: readonly AchievementDefinition[] = [
@@ -179,6 +237,109 @@ export const ACHIEVEMENTS: readonly AchievementDefinition[] = [
     isUnlocked: (state) =>
         state.gold >= 100000,
   },
+  {
+    id: "low-life-clear",
+    name: "CLOSE CALL",
+    description: "Complete a wave with 5 or fewer lives left.",
+    isUnlocked: (state) => state.lowLifeWaveClears >= 1,
+  },
+  {
+    id: "flawless-5",
+    name: "FLAWLESS I",
+    description: "Clear 5 waves in a row without losing a life.",
+    isUnlocked: (state) => state.cleanWaveStreak >= 5,
+  },
+  {
+    id: "flawless-10",
+    name: "FLAWLESS II",
+    description: "Clear 10 waves in a row without losing a life.",
+    isUnlocked: (state) => state.cleanWaveStreak >= 10,
+  },
+  {
+    id: "flawless-50",
+    name: "FLAWLESS III",
+    description: "Clear 50 waves in a row without losing a life.",
+    isUnlocked: (state) => state.cleanWaveStreak >= 50,
+  },
+  {
+    id: "frugal-5",
+    name: "PENNY PINCHER I",
+    description: "Finish 5 waves in a row without spending any gold.",
+    isUnlocked: (state) => state.noSpendWaveStreak >= 5,
+  },
+  {
+    id: "frugal-10",
+    name: "PENNY PINCHER II",
+    description: "Finish 10 waves in a row without spending any gold.",
+    isUnlocked: (state) => state.noSpendWaveStreak >= 10,
+  },
+  {
+    id: "lone-god-10",
+    name: "LONE GOD I",
+    description: "Reach wave 10 with only one GOD tower placed.",
+    isUnlocked: (state) => isLoneGod(state, 10),
+  },
+  {
+    id: "lone-god-50",
+    name: "LONE GOD II",
+    description: "Reach wave 50 with only one GOD tower placed.",
+    isUnlocked: (state) => isLoneGod(state, 50),
+  },
+  {
+    id: "lone-god-100",
+    name: "LONE GOD III",
+    description: "Reach wave 100 with only one GOD tower placed.",
+    isUnlocked: (state) => isLoneGod(state, 100),
+  },
+  {
+    id: "stack-2",
+    name: "DOUBLE UP",
+    description: "Have 2 towers plus a stacker on the same cell.",
+    isUnlocked: (state) => hasStackOf(state, 2),
+  },
+  {
+    id: "stack-3",
+    name: "TRIPLE THREAT",
+    description: "Have 3 towers plus a stacker on the same cell.",
+    isUnlocked: (state) => hasStackOf(state, 3),
+  },
+  {
+    id: "twins",
+    name: "TWINS",
+    description: "Have 2 of the same tower plus a stacker on the same cell.",
+    isUnlocked: (state) => hasSameTypeStackOf(state, 2),
+  },
+  {
+    id: "triplets",
+    name: "TRIPLETS",
+    description: "Have 3 of the same tower plus a stacker on the same cell.",
+    isUnlocked: (state) => hasSameTypeStackOf(state, 3),
+  },
+  {
+    id: "stack-lv-10",
+    name: "STACKED POWER I",
+    description: "Upgrade 3 towers on the same cell to level 10 in any stat.",
+    isUnlocked: (state) => hasUpgradedStack(state, 10),
+  },
+  {
+    id: "stack-lv-25",
+    name: "STACKED POWER II",
+    description: "Upgrade 3 towers on the same cell to level 25 in any stat.",
+    isUnlocked: (state) => hasUpgradedStack(state, 25),
+  },
+  {
+    id: "stack-lv-50",
+    name: "STACKED POWER III",
+    description: "Upgrade 3 towers on the same cell to level 50 in any stat.",
+    isUnlocked: (state) => hasUpgradedStack(state, 50),
+  },
+  {
+    id: "completionist",
+    name: "COMPLETIONIST",
+    description: "Unlock every other achievement.",
+    // Resolved in newlyUnlockedAchievements, which knows the earned set.
+    isUnlocked: () => false,
+  },
 ];
 
 export function newlyUnlockedAchievements(
@@ -186,7 +347,20 @@ export function newlyUnlockedAchievements(
   earnedIds: readonly AchievementId[],
 ): AchievementDefinition[] {
   const earned = new Set(earnedIds);
-  return ACHIEVEMENTS.filter(
-    (achievement) => !earned.has(achievement.id) && achievement.isUnlocked(state),
+  const unlocked = ACHIEVEMENTS.filter(
+    (achievement) =>
+      achievement.id !== "completionist" &&
+      !earned.has(achievement.id) &&
+      achievement.isUnlocked(state),
   );
+  unlocked.forEach((achievement) => earned.add(achievement.id));
+
+  const completionist = ACHIEVEMENTS.find((a) => a.id === "completionist");
+  const hasAllOthers = ACHIEVEMENTS.every(
+    (a) => a.id === "completionist" || earned.has(a.id),
+  );
+  if (completionist && hasAllOthers && !earned.has("completionist")) {
+    unlocked.push(completionist);
+  }
+  return unlocked;
 }

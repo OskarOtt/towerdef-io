@@ -291,8 +291,41 @@
   color: var(--term-green);
 }
 
-.tower-card-stats {
+.tower-card-help {
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  line-height: 13px;
+  text-align: center;
+  font-size: 10px;
+  font-style: italic;
+  border: 1px solid var(--term-green-dim);
+  border-radius: 50%;
   color: var(--term-green-dim);
+  cursor: help;
+}
+
+.tower-card-help:hover {
+  color: var(--term-green);
+  border-color: var(--term-green);
+}
+
+/* Fixed so the horizontally scrolling mobile shop strip can't clip it. */
+.tower-info-popup {
+  position: fixed;
+  z-index: 100;
+  margin: 0;
+  padding: 6px 10px;
+  list-style: none;
+  font-size: 11px;
+  line-height: 1.5;
+  background: #000;
+  border: 1px solid var(--term-green);
+  color: var(--term-green);
+  box-shadow: 0 0 8px rgba(51, 255, 102, 0.35);
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .tower-card-cost {
@@ -627,6 +660,22 @@
   background: var(--term-red);
 }
 
+.bolt-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bolt {
+  fill: none;
+  stroke: #ffeb3b;
+  stroke-width: 2.5px;
+  stroke-linejoin: miter;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 3px #ffeb3b);
+}
+
 .projectile {
   position: absolute;
   width: 6px;
@@ -810,9 +859,20 @@
     letter-spacing: 0.5px;
   }
 
+  .header-actions {
+    flex: 1 1 100%;
+    margin-left: 0;
+    gap: 4px;
+    min-width: 0;
+  }
+
   .header-actions .term-btn {
-    font-size: 10px;
-    padding: 4px 7px;
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 9px;
+    padding: 4px 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .app-main {
@@ -862,15 +922,35 @@
     flex: 0 0 auto;
   }
 
+  /* Flatten the column so the board and the toast slot become siblings of
+     the shop and can be ordered around it. */
   .board-column {
-    order: 2;
-    width: 100%;
+    display: contents;
   }
 
-  .board-wrap,
-  .board-column {
+  .board-wrap {
+    order: 2;
     width: 100%;
     max-width: 100%;
+  }
+
+  /* Zero-height anchor right after the shop; the toast overlays below it so
+     showing/hiding never shifts other content. The negative margin cancels
+     the flex gap this empty item would otherwise add. */
+  .achievement-toast-slot {
+    order: 4;
+    position: relative;
+    height: 0;
+    margin-top: -8px;
+    z-index: 7;
+  }
+
+  .achievement-toast-slot .achievement-toast {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin-top: 0;
   }
 
   /* Horizontal-scrolling tower shop strip instead of a tall vertical list,
@@ -907,8 +987,8 @@
     line-height: 1.3;
   }
 
-  .tower-card-stats {
-    display: none;
+  .tower-card-help {
+    margin-left: 0;
   }
 
   /* Tower upgrade panel becomes a full-screen modal on mobile — the bottom
@@ -935,6 +1015,137 @@
   /* Less top padding so modals sit higher and their content (e.g. the
      achievements/how-to-play lists) has more room on short phone screens. */
   .modal-overlay {
-    padding-top: 8vh;
+    padding: 8vh 25px 0;
   }
+
+  .modal-box {
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 20px 16px;
+  }
+
+  .modal-ascii {
+    overflow-x: auto;
+  }
+}
+
+/* ---------- Leaderboard ---------- */
+.name-field,
+.leaderboard-name-form {
+  margin: 12px 0;
+}
+
+.name-label {
+  display: block;
+  font-size: 11px;
+  color: var(--term-green-dim);
+  margin-bottom: 6px;
+}
+
+.name-row {
+  display: flex;
+  gap: 8px;
+}
+
+.name-input {
+  background: #000;
+  color: var(--term-green);
+  border: 1px solid var(--term-green);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.name-input:focus {
+  outline: none;
+  box-shadow: 0 0 6px var(--term-green);
+}
+
+.leaderboard-modal {
+  width: min(600px, calc(100vw - 32px));
+  max-height: 72vh;
+  overflow: auto;
+}
+
+.leaderboard-heading-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.leaderboard-table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.leaderboard-table th {
+  color: var(--term-amber);
+  text-align: left;
+  border-bottom: 1px dashed var(--term-green-dim);
+  padding: 4px 6px;
+}
+
+.leaderboard-table td {
+  padding: 3px 6px;
+}
+
+.leaderboard-me {
+  color: var(--term-amber);
+  background: rgba(255, 176, 0, 0.14);
+  font-weight: bold;
+}
+
+.leaderboard-gap td {
+  text-align: center;
+  color: var(--term-green-dim);
+  letter-spacing: 4px;
+}
+
+.leaderboard-message {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--term-green-dim);
+}
+
+/* ---------- Stacked towers ---------- */
+.cell-stack {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+}
+
+.tower-icon-mini {
+  font-size: 13px;
+}
+
+.tower-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.tower-tab-active {
+  box-shadow: inset 0 0 0 1px var(--term-green);
+  background: rgba(51, 255, 102, 0.15);
+}
+
+.cell-stack-item {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tower-upgrade-badge-mini {
+  font-size: 7px;
+  left: 1px;
+  bottom: 0;
 }
