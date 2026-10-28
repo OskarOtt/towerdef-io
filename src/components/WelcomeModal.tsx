@@ -63,7 +63,7 @@ ___  __        ___  __   __   ___  ___     __
             <br />
             &gt; IT WILL NOT BE TRACKED ON THE LEADERBOARD.
             <br />
-            &gt; START A NEW GAME TO COMPETE.
+            &gt; START A [ NEW GAME ] TO COMPETE.
           </p>
         )}
         <div className="modal-actions">

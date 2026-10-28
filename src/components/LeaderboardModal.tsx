@@ -102,7 +102,7 @@ export function LeaderboardModal({
         {legacyRun && (
           <p className="version-warning">
             &gt; WARNING: YOUR CURRENT RUN IS FROM AN OLDER VERSION AND WILL NOT BE TRACKED ON THE
-            LEADERBOARD. START A NEW GAME TO COMPETE.
+            LEADERBOARD. START A [ NEW GAME ] TO COMPETE.
           </p>
         )}
 
