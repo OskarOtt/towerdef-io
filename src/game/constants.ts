@@ -56,9 +56,22 @@ export const TOWER_DEFS: TowerDef[] = [
     group: "combat",
   },
   {
+    id: "chain-lightning",
+    name: "SHOCK",
+    cost: 500,
+    range: 3.0,
+    damage: 14,
+    fireRate: 1.2,
+    icon: "~",
+    color: "#FFEB3B",
+    splashRadius: 0,
+    chainTargets: 4,
+    group: "combat",
+  },
+  {
     id: "god",
     name: "GOD",
-    cost: 1000,
+    cost: 1500,
     range: 4.0,
     damage: 10,
     fireRate: 6,
@@ -81,7 +94,29 @@ export const TOWER_DEFS: TowerDef[] = [
     goldPerSecond: 1,
     roundEndBonus: 50,
   },
+  {
+    id: "stacker",
+    name: "STACKER",
+    cost: 3000,
+    range: 0,
+    damage: 0,
+    fireRate: 0,
+    icon: "+",
+    color: "#B388FF",
+    splashRadius: 0,
+    group: "utility",
+  },
 ];
+
+/** Max distance in cells between consecutive enemies in a lightning chain. */
+export const CHAIN_JUMP_RANGE = 2;
+/** Each jump deals this fraction of the previous hit's damage. */
+export const CHAIN_FALLOFF = 0.85;
+
+export const STACKER_ID = "stacker";
+export const STACKER_UPGRADE_COST = 10000;
+export const STACKER_BASE_SLOTS = 2;
+export const STACKER_UPGRADED_SLOTS = 3;
 
 export function towerDefById(id: string): TowerDef | undefined {
   return TOWER_DEFS.find((t) => t.id === id);
@@ -112,7 +147,7 @@ const Y_UNLOCK_WAVE = 9;
 const Z_UNLOCK_WAVE = 19;
 
 /** A boss (huge hp, slow, "Q" glyph) spawns once every this many waves. */
-export const BOSS_WAVE_INTERVAL = 50;
+export const BOSS_WAVE_INTERVAL = 25;
 
 export function isBossWave(wave: number): boolean {
   return wave > 0 && wave % BOSS_WAVE_INTERVAL === 0;
@@ -149,3 +184,8 @@ export const ENEMY_BASE_REWARD = 6;
 export const SPAWN_INTERVAL = 0.7; // seconds between enemy spawns within a wave
 
 export const STORAGE_KEY = "towerdef-io:save:v1";
+
+// Version 2 introduced the leaderboard and rebalanced the game, so runs from
+// older versions aren't comparable and must not be submitted.
+export const CURRENT_GAME_VERSION = 2;
+export const LEADERBOARD_MIN_VERSION = 2;

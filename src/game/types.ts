@@ -22,6 +22,8 @@ export interface TowerDef {
   /** Radius in grid cells for splash damage around the primary target. Omitted/0 = single-target only. */
   splashRadius?: number;
   group: TowerGroup;
+  /** Total enemies one shot hits: the primary target plus jumps to nearby enemies. Omitted = no chaining. */
+  chainTargets?: number;
   /** Base gold generated per second. Only set for utility towers. */
   goldPerSecond?: number;
   /** Base bonus gold granted when a wave/round ends. Only set for utility towers. */
@@ -53,6 +55,8 @@ export interface TowerInstance {
   /** Total gold ever spent on this tower (base cost + all upgrades paid). Used for sell refund. */
   totalSpent: number;
   cooldown: number; // seconds until next shot is allowed
+  /** STACKER only: capacity upgrade bought (3 extra towers instead of 1). */
+  stackUpgraded?: boolean;
 }
 
 /** x = balanced baseline, y = weaker/faster runner, z = tanky/slower, boss = rare massive-hp/slow enemy every BOSS_WAVE_INTERVAL waves. */
@@ -78,6 +82,8 @@ export interface Projectile {
   toCol: number;
   targetEnemyId: string;
   damage: number;
+  /** Chain lightning only: zigzag polyline in grid coords (tower -> each chained enemy), fixed at fire time. */
+  bolt?: { row: number; col: number }[];
   /** 0..1 animation progress toward the target, consumed within a frame or two. */
   progress: number;
 }
@@ -96,4 +102,16 @@ export interface GameState {
   gameOver: boolean;
   /** Total enemies killed this game, shown in the HUD. */
   killCount: number;
+  /** Lives at the moment the current wave started, to detect whether the wave leaked. */
+  livesAtWaveStart: number;
+  /** Consecutive waves cleared without losing a life. */
+  cleanWaveStreak: number;
+  /** Whether gold was spent (towers/upgrades) since the previous wave cleared. */
+  spentSinceWaveClear: boolean;
+  /** Consecutive waves cleared without spending gold. */
+  noSpendWaveStreak: number;
+  /** Number of waves cleared while at 5 or fewer lives remaining. */
+  lowLifeWaveClears: number;
+  /** GOD towers placed this game (never decremented on sell), for the LONE GOD achievements. */
+  godTowersPlaced: number;
 }

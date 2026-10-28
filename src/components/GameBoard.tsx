@@ -3,6 +3,7 @@ import type { GameState } from "../game/types";
 import { GRID_ROWS, GRID_COLS, PATH, isPathCell, positionAtProgress } from "../game/path";
 import { Cell } from "./Cell";
 import { towerDefById } from "../game/constants";
+import { canPlaceAt, towersAt } from "../game/stacking";
 import { effectiveStats } from "../game/upgrades";
 
 interface GameBoardProps {
@@ -27,8 +28,7 @@ export function GameBoard({
   selectedShopDefId,
   onTapPlaceTower,
 }: GameBoardProps) {
-  const towerAt = (row: number, col: number) =>
-    state.towers.find((t) => t.row === row && t.col === col);
+  const activeDefId = draggingDefId ?? selectedShopDefId;
 
   const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number } | null>(
     null,
@@ -58,24 +58,25 @@ export function GameBoard({
 
   const draggingDef = draggingDefId ? towerDefById(draggingDefId) : undefined;
   const previewCell =
-    draggingDef && hoveredCell && !isPathCell(hoveredCell.row, hoveredCell.col) && !towerAt(hoveredCell.row, hoveredCell.col)
+    draggingDef && hoveredCell && !isPathCell(hoveredCell.row, hoveredCell.col) && canPlaceAt(state.towers, hoveredCell.row, hoveredCell.col, draggingDef.id)
       ? hoveredCell
       : null;
 
   const cells = [];
   for (let row = 0; row < GRID_ROWS; row++) {
     for (let col = 0; col < GRID_COLS; col++) {
-      const tower = towerAt(row, col);
+      const here = towersAt(state.towers, row, col);
       cells.push(
         <Cell
           key={`${row}-${col}`}
           row={row}
           col={col}
           isPath={isPathCell(row, col)}
-          tower={tower}
+          towers={here}
+          canPlace={activeDefId ? canPlaceAt(state.towers, row, col, activeDefId) : here.length === 0}
+          selectedTowerId={selectedTowerId}
           onDropTower={onDropTower}
           draggingTower={draggingTower}
-          selected={!!tower && tower.id === selectedTowerId}
           onSelectTower={onSelectTower}
           onHoverCell={setHoveredCell}
           selectedShopDefId={selectedShopDefId}
@@ -152,7 +153,26 @@ export function GameBoard({
             }}
           />
         )}
+        <svg
+          className="bolt-layer"
+          viewBox={`0 0 ${GRID_COLS} ${GRID_ROWS}`}
+          preserveAspectRatio="none"
+        >
+          {state.projectiles.map((proj) =>
+            proj.bolt ? (
+              <polyline
+                key={proj.id}
+                className="bolt"
+                style={{ opacity: 1 - proj.progress }}
+                points={proj.bolt
+                  .map((pt) => `${pt.col + 0.5},${pt.row + 0.5}`)
+                  .join(" ")}
+              />
+            ) : null,
+          )}
+        </svg>
         {state.projectiles.map((proj) => {
+          if (proj.bolt) return null;
           const left =
             ((proj.fromCol + (proj.toCol - proj.fromCol) * proj.progress + 0.5) /
               GRID_COLS) *

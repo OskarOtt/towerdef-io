@@ -4,6 +4,9 @@ import { siteDescription, siteKeywords, siteTitle, siteUrl } from './scripts/seo
 
 export default defineConfig({
   base: '/',
+  server: {
+    proxy: { '/api': 'http://localhost:8080' },
+  },
   plugins: [
     react(),
     {

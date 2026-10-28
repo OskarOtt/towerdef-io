@@ -85,3 +85,8 @@ export function toRoman(n: number): string {
   }
   return result;
 }
+
+/** Sum of all upgrade levels on a tower. */
+export function totalUpgradeLevels(upgrades: TowerUpgrades): number {
+  return upgrades.damage + upgrades.fireRate + upgrades.range + upgrades.goldPerSecond + upgrades.roundEndBonus;
+}
