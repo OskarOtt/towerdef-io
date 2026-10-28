@@ -25,7 +25,7 @@ import {
   normalizeName,
   saveLeaderboardName,
 } from "./game/leaderboardStorage";
-import { submitCurrentScore } from "./game/leaderboardSync";
+import { isLeaderboardEligible, submitCurrentScore } from "./game/leaderboardSync";
 import { TowerUpgradePanel } from "./components/TowerUpgradePanel";
 import {
   emptyUpgrades,
@@ -68,6 +68,7 @@ function App() {
   const [leaderboardName, setLeaderboardName] = useState<string | null>(() =>
     loadLeaderboardName(),
   );
+  const legacyRun = !isLeaderboardEligible(state);
   const stateRef = useRef(state);
   const nameRef = useRef(leaderboardName);
   useEffect(() => {
@@ -80,6 +81,8 @@ function App() {
   );
   const [achievementQueue, setAchievementQueue] = useState<AchievementDefinition[]>([]);
   const [achievementTimerFraction, setAchievementTimerFraction] = useState<number | null>(null);
+
+  //useEffect(() => {console.log({state})}, [])
 
   const handleStartNew = useCallback((name: string) => {
     saveLeaderboardName(name);
@@ -480,6 +483,7 @@ function App() {
         <WelcomeModal
           hasSave={hasSave || screen === "playing"}
           initialName={leaderboardName}
+          legacyRun={legacyRun}
           onStartNew={handleStartNew}
           onResume={handleResume}
         />
@@ -494,6 +498,7 @@ function App() {
         <LeaderboardModal
           name={leaderboardName}
           canSubmit={screen === "playing"}
+          legacyRun={legacyRun}
           onSetName={handleSetLeaderboardName}
           onUpdateScore={handleUpdateScore}
           onClose={() => setLeaderboardOpen(false)}

@@ -4,11 +4,12 @@ import { NAME_MAX_LENGTH, normalizeName } from "../game/leaderboardStorage";
 interface WelcomeModalProps {
   hasSave: boolean;
   initialName: string | null;
+  legacyRun: boolean;
   onStartNew: (name: string) => void;
   onResume: (name: string | null) => void;
 }
 
-export function WelcomeModal({ hasSave, initialName, onStartNew, onResume }: WelcomeModalProps) {
+export function WelcomeModal({ hasSave, initialName, legacyRun, onStartNew, onResume }: WelcomeModalProps) {
   // Require a second click to confirm overwriting an existing save.
   const [confirmNewGame, setConfirmNewGame] = useState(false);
 
@@ -56,6 +57,15 @@ ___  __        ___  __   __   ___  ___     __
             }}
           />
         </div>
+        {legacyRun && (
+          <p className="version-warning">
+            &gt; WARNING: YOUR SAVED RUN IS FROM AN OLDER VERSION.
+            <br />
+            &gt; IT WILL NOT BE TRACKED ON THE LEADERBOARD.
+            <br />
+            &gt; START A NEW GAME TO COMPETE.
+          </p>
+        )}
         <div className="modal-actions">
           <button className="term-btn" onClick={handleNewGameClick} disabled={!cleanName}>
             {confirmNewGame ? "[ CONFIRM ]" : "[ NEW GAME ]"}

@@ -12,6 +12,7 @@ export interface ScorePayload {
   topTowerId: string;
   topTowerLevel: number;
   achievements: number;
+  gameVersion: number;
 }
 
 export interface LeaderboardRow {
@@ -22,6 +23,7 @@ export interface LeaderboardRow {
   topTowerId: string;
   topTowerLevel: number;
   achievements: number;
+  gameVersion: number;
 }
 
 export class ApiError extends Error {

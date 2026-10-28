@@ -60,7 +60,7 @@ export const TOWER_DEFS: TowerDef[] = [
     name: "SHOCK",
     cost: 500,
     range: 3.0,
-    damage: 12,
+    damage: 14,
     fireRate: 1.2,
     icon: "~",
     color: "#FFEB3B",
@@ -71,7 +71,7 @@ export const TOWER_DEFS: TowerDef[] = [
   {
     id: "god",
     name: "GOD",
-    cost: 1000,
+    cost: 1500,
     range: 4.0,
     damage: 10,
     fireRate: 6,
@@ -184,3 +184,8 @@ export const ENEMY_BASE_REWARD = 6;
 export const SPAWN_INTERVAL = 0.7; // seconds between enemy spawns within a wave
 
 export const STORAGE_KEY = "towerdef-io:save:v1";
+
+// Version 2 introduced the leaderboard and rebalanced the game, so runs from
+// older versions aren't comparable and must not be submitted.
+export const CURRENT_GAME_VERSION = 2;
+export const LEADERBOARD_MIN_VERSION = 2;

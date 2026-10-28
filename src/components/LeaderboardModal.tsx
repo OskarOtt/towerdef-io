@@ -24,6 +24,7 @@ function renderRow(row: LeaderboardRow, isMe: boolean) {
 interface LeaderboardModalProps {
   name: string | null;
   canSubmit: boolean;
+  legacyRun: boolean;
   onSetName: (name: string) => void;
   onUpdateScore: () => Promise<"ok" | "skipped" | "error">;
   onClose: () => void;
@@ -32,6 +33,7 @@ interface LeaderboardModalProps {
 export function LeaderboardModal({
   name,
   canSubmit,
+  legacyRun,
   onSetName,
   onUpdateScore,
   onClose,
@@ -82,7 +84,7 @@ export function LeaderboardModal({
         <div className="how-to-play-modal-heading">
           <div className="panel-title">LEADERBOARD</div>
           <div className="leaderboard-heading-actions">
-            {name && canSubmit && (
+            {name && canSubmit && !legacyRun && (
               <button
                 className="term-btn term-btn-small how-to-play-modal-close"
                 onClick={handleUpdate}
@@ -96,6 +98,13 @@ export function LeaderboardModal({
             </button>
           </div>
         </div>
+
+        {legacyRun && (
+          <p className="version-warning">
+            &gt; WARNING: YOUR CURRENT RUN IS FROM AN OLDER VERSION AND WILL NOT BE TRACKED ON THE
+            LEADERBOARD. START A NEW GAME TO COMPETE.
+          </p>
+        )}
 
         {!name && (
           <form

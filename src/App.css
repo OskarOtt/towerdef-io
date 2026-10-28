@@ -1149,3 +1149,12 @@
   left: 1px;
   bottom: 0;
 }
+
+.version-warning {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--term-amber, #ffb000);
+  border: 1px solid currentColor;
+  padding: 8px 10px;
+  margin: 10px 0;
+}

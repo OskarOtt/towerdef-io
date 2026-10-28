@@ -1,9 +1,9 @@
 import type { GameState, TowerUpgrades } from "./types";
-import { STORAGE_KEY, INITIAL_GOLD, INITIAL_LIVES, towerDefById } from "./constants";
+import { STORAGE_KEY, CURRENT_GAME_VERSION, INITIAL_GOLD, INITIAL_LIVES, towerDefById } from "./constants";
 
 export function createNewGameState(): GameState {
   return {
-    version: 1,
+    version: CURRENT_GAME_VERSION,
     gold: INITIAL_GOLD,
     lives: INITIAL_LIVES,
     wave: 0,

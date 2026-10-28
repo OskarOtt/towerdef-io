@@ -3,8 +3,13 @@ import type { GameState } from "./types";
 import { clearRun, loadRun, normalizeName, saveRun } from "./leaderboardStorage";
 import { loadEarnedAchievements } from "./achievementStorage";
 import { totalUpgradeLevels } from "./upgrades";
+import { LEADERBOARD_MIN_VERSION } from "./constants";
 
 export type SubmitResult = "ok" | "skipped" | "error";
+
+export function isLeaderboardEligible(state: GameState): boolean {
+  return state.version >= LEADERBOARD_MIN_VERSION;
+}
 
 export function buildScore(name: string, state: GameState): ScorePayload | null {
   if (state.wave < 1) return null;
@@ -21,6 +26,7 @@ export function buildScore(name: string, state: GameState): ScorePayload | null 
     topTowerId: top.id,
     topTowerLevel: top.level,
     achievements: loadEarnedAchievements().length,
+    gameVersion: state.version,
   };
 }
 
@@ -39,6 +45,7 @@ export async function submitCurrentScore(
   name: string | null | undefined,
   state: GameState,
 ): Promise<SubmitResult> {
+  if (!isLeaderboardEligible(state)) return "skipped";
   const clean = normalizeName(name);
   if (!clean) return "skipped";
   const score = buildScore(clean, state);
