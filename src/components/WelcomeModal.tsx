@@ -67,7 +67,12 @@ ___  __        ___  __   __   ___  ___     __
           </p>
         )}
         <div className="modal-actions">
-          <button className="term-btn" onClick={handleNewGameClick} disabled={!cleanName}>
+          <button
+            className="term-btn"
+            onClick={handleNewGameClick}
+            disabled={!cleanName}
+            title={cleanName ? undefined : "Name for leaderboard is needed to start a new game"}
+          >
             {confirmNewGame ? "[ CONFIRM ]" : "[ NEW GAME ]"}
           </button>
           {hasSave && (

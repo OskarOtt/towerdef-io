@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchLeaderboard, fetchRunPlacement, type LeaderboardRow } from "../api/leaderboard";
-import { loadRun, NAME_MAX_LENGTH, normalizeName } from "../game/leaderboardStorage";
+import { loadRun } from "../game/leaderboardStorage";
 import { ACHIEVEMENT_IDS } from "../game/achievements";
 import { towerDefById } from "../game/constants";
 
@@ -25,7 +25,6 @@ interface LeaderboardModalProps {
   name: string | null;
   canSubmit: boolean;
   legacyRun: boolean;
-  onSetName: (name: string) => void;
   onUpdateScore: () => Promise<"ok" | "skipped" | "error">;
   onClose: () => void;
 }
@@ -34,7 +33,6 @@ export function LeaderboardModal({
   name,
   canSubmit,
   legacyRun,
-  onSetName,
   onUpdateScore,
   onClose,
 }: LeaderboardModalProps) {
@@ -43,7 +41,6 @@ export function LeaderboardModal({
   const [loadError, setLoadError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [nameDraft, setNameDraft] = useState("");
 
   const load = useCallback(async () => {
     const runId = loadRun()?.runId;
@@ -70,8 +67,6 @@ export function LeaderboardModal({
     await load();
     setBusy(false);
   };
-
-  const draftName = normalizeName(nameDraft);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -102,39 +97,15 @@ export function LeaderboardModal({
         {legacyRun && (
           <p className="version-warning">
             &gt; WARNING: YOUR CURRENT RUN IS FROM AN OLDER VERSION AND WILL NOT BE TRACKED ON THE
-            LEADERBOARD. START A [ NEW GAME ] TO COMPETE.
+            LEADERBOARD. GO TO THE MENU AND START A [ NEW GAME ] TO COMPETE.
           </p>
         )}
 
         {!name && (
-          <form
-            className="leaderboard-name-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (draftName) {
-                onSetName(draftName);
-                setNameDraft("");
-              }
-            }}
-          >
-            <label className="name-label" htmlFor="lb-name-prompt">
-              &gt; ENTER A NAME FOR LEADERBOARD TO SUBMIT YOUR SCORE
-            </label>
-            <div className="name-row">
-              <input
-                id="lb-name-prompt"
-                className="name-input"
-                value={nameDraft}
-                maxLength={NAME_MAX_LENGTH}
-                placeholder="name for leaderboard"
-                autoComplete="off"
-                onChange={(e) => setNameDraft(e.target.value)}
-              />
-              <button className="term-btn term-btn-small" type="submit" disabled={!draftName}>
-                [ SAVE ]
-              </button>
-            </div>
-          </form>
+          <p className="version-warning">
+            &gt; YOUR RUN IS NOT ON THE LEADERBOARD. GO TO THE MENU AND START A [ NEW GAME ] WITH A
+            NAME TO GET YOUR RUN ON THE LEADERBOARD.
+          </p>
         )}
 
         {message && <div className="leaderboard-message">{message}</div>}

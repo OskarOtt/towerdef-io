@@ -22,7 +22,6 @@ import { canPlaceAt, towersAt } from "./game/stacking";
 import {
   clearRun,
   loadLeaderboardName,
-  normalizeName,
   saveLeaderboardName,
 } from "./game/leaderboardStorage";
 import { isLeaderboardEligible, submitCurrentScore } from "./game/leaderboardSync";
@@ -316,15 +315,6 @@ function App() {
     if (sold) setSelectedTowerId(null);
   }, []);
 
-  const handleSetLeaderboardName = useCallback((name: string) => {
-    const clean = normalizeName(name);
-    if (!clean) return;
-    saveLeaderboardName(clean);
-    setLeaderboardName(clean);
-    nameRef.current = clean;
-    void submitCurrentScore(clean, stateRef.current);
-  }, []);
-
   const handleUpdateScore = useCallback(() => {
     const snapshot = stateRef.current;
     return submitCurrentScore(nameRef.current, snapshot).then((result) => {
@@ -499,7 +489,6 @@ function App() {
           name={leaderboardName}
           canSubmit={screen === "playing"}
           legacyRun={legacyRun}
-          onSetName={handleSetLeaderboardName}
           onUpdateScore={handleUpdateScore}
           onClose={() => setLeaderboardOpen(false)}
         />
