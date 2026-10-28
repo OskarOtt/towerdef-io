@@ -147,7 +147,7 @@ const Y_UNLOCK_WAVE = 9;
 const Z_UNLOCK_WAVE = 19;
 
 /** A boss (huge hp, slow, "Q" glyph) spawns once every this many waves. */
-export const BOSS_WAVE_INTERVAL = 50;
+export const BOSS_WAVE_INTERVAL = 25;
 
 export function isBossWave(wave: number): boolean {
   return wave > 0 && wave % BOSS_WAVE_INTERVAL === 0;
